@@ -29,6 +29,10 @@ import wandb
 #等实现triplet后再拓展
 
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("*********************")
+print(device)
+
 parser = argparse.ArgumentParser(description="PyTorch ImageNet Training")
 # parser.add_argument("data", metavar="DIR", help="path to dataset")
 parser.add_argument(
@@ -166,6 +170,7 @@ def main():
     elif args.arch == "VAN":
         model = van_b0()
 
+    model = model.to(device)
     # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss()
 

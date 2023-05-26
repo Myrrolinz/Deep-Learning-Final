@@ -214,3 +214,216 @@ requests.exceptions.SSLError: HTTPSConnectionPool(host='api.wandb.ai', port=443)
 2023-05-26 19:37:23,083 DEBUG   SenderThread:25572 [sender.py:send_request():402] send_request: stop_status
 2023-05-26 19:37:25,515 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
 2023-05-26 19:37:30,567 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:37:35,620 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:37:37,713 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:37:38,108 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: stop_status
+2023-05-26 19:37:38,108 DEBUG   SenderThread:25572 [sender.py:send_request():402] send_request: stop_status
+2023-05-26 19:37:41,448 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:37:46,475 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:37:51,537 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:37:53,143 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: stop_status
+2023-05-26 19:37:53,143 DEBUG   SenderThread:25572 [sender.py:send_request():402] send_request: stop_status
+2023-05-26 19:37:57,443 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:02,504 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:07,551 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:07,725 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:38:07,744 WARNING FileStreamThread:25572 [file_stream.py:request_with_retry():670] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/mildredteam/TripletAttention/dj3es7ev/file_stream (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:1129)'))). func: <bound method Session.post of <requests.sessions.Session object at 0x000001DC18B333A0>>, args: ('https://api.wandb.ai/files/mildredteam/TripletAttention/dj3es7ev/file_stream',), kwargs: {'json': {'files': {'wandb-events.jsonl': {'offset': 8, 'content': ['{"system.proc.memory.availableMB": 2476.97, "system.memory": 84.67, "system.proc.memory.rssMB": 2071.74, "system.proc.memory.percent": 12.81, "system.disk": 86.0, "system.cpu": 24.27, "system.cpu.0.cpu_percent": 16.78, "system.cpu.1.cpu_percent": 20.45, "system.cpu.2.cpu_percent": 22.29, "system.cpu.3.cpu_percent": 67.27, "system.cpu.4.cpu_percent": 28.39, "system.cpu.5.cpu_percent": 33.89, "system.cpu.6.cpu_percent": 35.88, "system.cpu.7.cpu_percent": 54.37, "system.proc.cpu.threads": 20, "system.network.sent": 244573.93, "system.network.recv": 525295.07, "_wandb": true, "_timestamp": 1685101057.713529, "_runtime": 309.807516}']}}, 'dropped': 0}}
+2023-05-26 19:38:08,158 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: stop_status
+2023-05-26 19:38:08,158 DEBUG   SenderThread:25572 [sender.py:send_request():402] send_request: stop_status
+2023-05-26 19:38:09,915 WARNING FileStreamThread:25572 [file_stream.py:request_with_retry():670] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/mildredteam/TripletAttention/dj3es7ev/file_stream (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:1129)'))). func: <bound method Session.post of <requests.sessions.Session object at 0x000001DC18B333A0>>, args: ('https://api.wandb.ai/files/mildredteam/TripletAttention/dj3es7ev/file_stream',), kwargs: {'json': {'files': {'wandb-events.jsonl': {'offset': 8, 'content': ['{"system.proc.memory.availableMB": 2476.97, "system.memory": 84.67, "system.proc.memory.rssMB": 2071.74, "system.proc.memory.percent": 12.81, "system.disk": 86.0, "system.cpu": 24.27, "system.cpu.0.cpu_percent": 16.78, "system.cpu.1.cpu_percent": 20.45, "system.cpu.2.cpu_percent": 22.29, "system.cpu.3.cpu_percent": 67.27, "system.cpu.4.cpu_percent": 28.39, "system.cpu.5.cpu_percent": 33.89, "system.cpu.6.cpu_percent": 35.88, "system.cpu.7.cpu_percent": 54.37, "system.proc.cpu.threads": 20, "system.network.sent": 244573.93, "system.network.recv": 525295.07, "_wandb": true, "_timestamp": 1685101057.713529, "_runtime": 309.807516}']}}, 'dropped': 0}}
+2023-05-26 19:38:11,472 INFO    SenderThread:25572 [retry.py:__call__():172] Retry attempt failed:
+Traceback (most recent call last):
+  File "D:\Python39\lib\site-packages\urllib3\connectionpool.py", line 700, in urlopen
+    self._prepare_proxy(conn)
+  File "D:\Python39\lib\site-packages\urllib3\connectionpool.py", line 996, in _prepare_proxy
+    conn.connect()
+  File "D:\Python39\lib\site-packages\urllib3\connection.py", line 364, in connect
+    self.sock = conn = self._connect_tls_proxy(hostname, conn)
+  File "D:\Python39\lib\site-packages\urllib3\connection.py", line 499, in _connect_tls_proxy
+    socket = ssl_wrap_socket(
+  File "D:\Python39\lib\site-packages\urllib3\util\ssl_.py", line 453, in ssl_wrap_socket
+    ssl_sock = _ssl_wrap_socket_impl(sock, context, tls_in_tls)
+  File "D:\Python39\lib\site-packages\urllib3\util\ssl_.py", line 495, in _ssl_wrap_socket_impl
+    return ssl_context.wrap_socket(sock)
+  File "D:\Python39\lib\ssl.py", line 500, in wrap_socket
+    return self.sslsocket_class._create(
+  File "D:\Python39\lib\ssl.py", line 1040, in _create
+    self.do_handshake()
+  File "D:\Python39\lib\ssl.py", line 1309, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLEOFError: EOF occurred in violation of protocol (_ssl.c:1129)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Python39\lib\site-packages\requests\adapters.py", line 489, in send
+    resp = conn.urlopen(
+  File "D:\Python39\lib\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    retries = retries.increment(
+  File "D:\Python39\lib\site-packages\urllib3\util\retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:1129)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Python39\lib\site-packages\wandb\sdk\lib\retry.py", line 131, in __call__
+    result = self._call_fn(*args, **kwargs)
+  File "D:\Python39\lib\site-packages\wandb\sdk\internal\internal_api.py", line 285, in execute
+    return self.client.execute(*args, **kwargs)  # type: ignore
+  File "D:\Python39\lib\site-packages\wandb\vendor\gql-0.2.0\wandb_gql\client.py", line 52, in execute
+    result = self._get_result(document, *args, **kwargs)
+  File "D:\Python39\lib\site-packages\wandb\vendor\gql-0.2.0\wandb_gql\client.py", line 60, in _get_result
+    return self.transport.execute(document, *args, **kwargs)
+  File "D:\Python39\lib\site-packages\wandb\sdk\lib\gql_request.py", line 55, in execute
+    request = self.session.post(self.url, **post_args)
+  File "D:\Python39\lib\site-packages\requests\sessions.py", line 635, in post
+    return self.request("POST", url, data=data, json=json, **kwargs)
+  File "D:\Python39\lib\site-packages\requests\sessions.py", line 587, in request
+    resp = self.send(prep, **send_kwargs)
+  File "D:\Python39\lib\site-packages\requests\sessions.py", line 701, in send
+    r = adapter.send(request, **kwargs)
+  File "D:\Python39\lib\site-packages\requests\adapters.py", line 563, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /graphql (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:1129)')))
+2023-05-26 19:38:13,207 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:14,498 WARNING FileStreamThread:25572 [file_stream.py:request_with_retry():670] requests_with_retry encountered retryable exception: HTTPSConnectionPool(host='api.wandb.ai', port=443): Max retries exceeded with url: /files/mildredteam/TripletAttention/dj3es7ev/file_stream (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:1129)'))). func: <bound method Session.post of <requests.sessions.Session object at 0x000001DC18B333A0>>, args: ('https://api.wandb.ai/files/mildredteam/TripletAttention/dj3es7ev/file_stream',), kwargs: {'json': {'files': {'wandb-events.jsonl': {'offset': 8, 'content': ['{"system.proc.memory.availableMB": 2476.97, "system.memory": 84.67, "system.proc.memory.rssMB": 2071.74, "system.proc.memory.percent": 12.81, "system.disk": 86.0, "system.cpu": 24.27, "system.cpu.0.cpu_percent": 16.78, "system.cpu.1.cpu_percent": 20.45, "system.cpu.2.cpu_percent": 22.29, "system.cpu.3.cpu_percent": 67.27, "system.cpu.4.cpu_percent": 28.39, "system.cpu.5.cpu_percent": 33.89, "system.cpu.6.cpu_percent": 35.88, "system.cpu.7.cpu_percent": 54.37, "system.proc.cpu.threads": 20, "system.network.sent": 244573.93, "system.network.recv": 525295.07, "_wandb": true, "_timestamp": 1685101057.713529, "_runtime": 309.807516}']}}, 'dropped': 0}}
+2023-05-26 19:38:18,217 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:23,274 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:24,857 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:28,316 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:29,872 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:33,349 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:34,913 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:37,736 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:38:38,392 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:40,766 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:43,429 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:45,824 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:48,472 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:50,873 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:53,528 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:38:55,918 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:38:58,560 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:00,942 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:03,604 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:05,988 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:07,742 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:39:08,657 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:11,775 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:13,684 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:16,907 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:18,714 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:21,981 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:23,751 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:27,860 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:28,794 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:29,086 INFO    Thread-16 :25572 [dir_watcher.py:_on_file_modified():295] file/dir modified: D:\LessonProjects\Deep-Learning-Final\wandb\run-20230526_193227-dj3es7ev\files\output.log
+2023-05-26 19:39:32,912 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:33,840 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:37,750 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:39:38,759 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:38,866 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:43,829 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:43,904 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:48,819 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:48,933 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:53,842 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:53,980 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:39:58,859 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:39:59,022 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:03,884 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:04,046 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:07,764 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:40:09,086 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:09,780 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:14,129 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:14,833 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:19,192 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:19,866 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:24,250 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:24,906 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:29,289 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:29,959 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:34,335 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:34,991 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:37,805 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:40:39,368 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:40,878 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:44,406 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:45,937 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:49,429 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:50,971 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:54,467 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:40:56,027 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:40:59,494 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:01,074 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:04,526 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:06,114 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:07,793 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:41:09,558 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:11,908 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:14,587 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:16,955 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:19,628 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:22,006 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:24,675 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:27,033 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:29,720 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:32,075 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:34,773 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:37,136 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:37,799 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:41:39,800 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:42,838 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:44,846 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:47,888 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:49,875 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:52,978 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:41:53,877 INFO    Thread-16 :25572 [dir_watcher.py:_on_file_modified():295] file/dir modified: D:\LessonProjects\Deep-Learning-Final\wandb\run-20230526_193227-dj3es7ev\files\output.log
+2023-05-26 19:41:54,934 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:41:58,022 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:00,004 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:03,067 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:05,045 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:07,813 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:42:08,824 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:10,096 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:13,854 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:15,129 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:18,890 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:20,168 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:23,943 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:25,226 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:28,994 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:30,288 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:34,042 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:35,335 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:37,826 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:42:39,847 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:40,380 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:44,905 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:45,422 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:49,943 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:50,457 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:42:54,974 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:42:55,493 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:00,009 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:43:00,542 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:05,048 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:43:05,587 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:07,843 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
+2023-05-26 19:43:10,619 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:10,880 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:43:15,652 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:15,913 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:43:20,686 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:20,957 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:43:25,706 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:26,002 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:43:30,747 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:31,029 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:43:32,262 INFO    Thread-16 :25572 [dir_watcher.py:_on_file_modified():295] file/dir modified: D:\LessonProjects\Deep-Learning-Final\wandb\run-20230526_193227-dj3es7ev\files\output.log
+2023-05-26 19:43:35,797 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: keepalive
+2023-05-26 19:43:36,111 DEBUG   HandlerThread:25572 [handler.py:handle_request():144] handle_request: status_report
+2023-05-26 19:43:37,857 DEBUG   SenderThread:25572 [sender.py:send():375] send: stats
