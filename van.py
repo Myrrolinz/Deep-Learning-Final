@@ -46,12 +46,28 @@ class Mlp(nn.Module):
         return x
 
 
+# class LKA(nn.Module):
+#     def __init__(self, dim):
+#         super().__init__()
+#         self.conv0 = nn.Conv2d(dim, dim, 5, padding=2, groups=dim)
+#         self.conv_spatial = nn.Conv2d(dim, dim, 7, stride=1, padding=9, groups=dim, dilation=3)
+#         self.conv1 = nn.Conv2d(dim, dim, 1)
+
+#     def forward(self, x):
+#         u = x.clone()
+#         attn = self.conv0(x)
+#         attn = self.conv_spatial(attn)
+#         attn = self.conv1(attn)
+
+#         return u * attn
+
+# 1. 大核
 class LKA(nn.Module):
     def __init__(self, dim):
         super().__init__()
-        self.conv0 = nn.Conv2d(dim, dim, 5, padding=2, groups=dim)
-        self.conv_spatial = nn.Conv2d(dim, dim, 7, stride=1, padding=9, groups=dim, dilation=3)
-        self.conv1 = nn.Conv2d(dim, dim, 1)
+        self.conv0 = nn.Conv2d(dim, dim, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3), groups=dim)
+        self.conv_spatial = nn.Conv2d(dim, dim, kernel_size=(1, 1), stride=(1, 1))
+        self.conv1 = nn.Conv2d(dim, dim, kernel_size=(1, 1), stride=(1, 1))
 
     def forward(self, x):
         u = x.clone()
@@ -60,7 +76,6 @@ class LKA(nn.Module):
         attn = self.conv1(attn)
 
         return u * attn
-
 
 class Attention(nn.Module):
     def __init__(self, d_model):
