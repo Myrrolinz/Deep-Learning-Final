@@ -29,9 +29,8 @@ import wandb
 #等实现triplet后再拓展
 
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("*********************")
-print(device)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using {device} device")
 
 parser = argparse.ArgumentParser(description="PyTorch ImageNet Training")
 # parser.add_argument("data", metavar="DIR", help="path to dataset")
