@@ -45,7 +45,7 @@ class Mlp(nn.Module):
         x = self.drop(x)
         return x
 
-
+# Original LKA
 # class LKA(nn.Module):
 #     def __init__(self, dim):
 #         super().__init__()
@@ -62,20 +62,92 @@ class Mlp(nn.Module):
 #         return u * attn
 
 # 1. 大核
+# class LKA(nn.Module):
+#     def __init__(self, dim):
+#         super().__init__()
+#         self.conv0 = nn.Conv2d(dim, dim, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3), groups=dim)
+#         self.conv_spatial = nn.Conv2d(dim, dim, kernel_size=(1, 1), stride=(1, 1))
+#         self.conv1 = nn.Conv2d(dim, dim, kernel_size=(1, 1), stride=(1, 1))
+
+#     def forward(self, x):
+#         u = x.clone()
+#         attn = self.conv0(x)
+#         attn = self.conv_spatial(attn)
+#         attn = self.conv1(attn)
+
+#         return u * attn
+    
+# 2. 多尺度分支
+class MultiScaleBranch(nn.Module):
+    def __init__(self, dim):
+        super().__init__()
+        self.conv3x3 = nn.Conv2d(dim, dim, kernel_size=3, padding=1)
+        self.conv5x5 = nn.Conv2d(dim, dim, kernel_size=5, padding=2)
+        self.conv7x7 = nn.Conv2d(dim, dim, kernel_size=7, padding=3)
+
+    def forward(self, x):
+        out_3x3 = self.conv3x3(x)
+        out_5x5 = self.conv5x5(x)
+        out_7x7 = self.conv7x7(x)
+        return torch.cat([out_3x3, out_5x5, out_7x7], dim=1)
+
+
 class LKA(nn.Module):
     def __init__(self, dim):
         super().__init__()
-        self.conv0 = nn.Conv2d(dim, dim, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3), groups=dim)
-        self.conv_spatial = nn.Conv2d(dim, dim, kernel_size=(1, 1), stride=(1, 1))
-        self.conv1 = nn.Conv2d(dim, dim, kernel_size=(1, 1), stride=(1, 1))
+        self.conv0 = nn.Conv2d(dim, dim, kernel_size=5, padding=2, groups=dim)
+        self.conv_spatial = MultiScaleBranch(dim)
+        self.conv1 = nn.Conv2d(dim * 3, dim, kernel_size=1)
 
     def forward(self, x):
         u = x.clone()
         attn = self.conv0(x)
+        attn = F.relu(attn)
         attn = self.conv_spatial(attn)
+        attn = F.relu(attn)
         attn = self.conv1(attn)
 
         return u * attn
+    
+# 3. 增加批归一化
+# class LKA(nn.Module):
+#     def __init__(self, dim):
+#         super().__init__()
+#         self.conv0 = nn.Conv2d(dim, dim, 5, padding=2, groups=dim)
+#         self.bn0 = nn.BatchNorm2d(dim)
+#         self.conv_spatial = nn.Conv2d(dim, dim, 7, stride=1, padding=9, groups=dim, dilation=3)
+#         self.bn_spatial = nn.BatchNorm2d(dim)
+#         self.conv1 = nn.Conv2d(dim, dim, 1)
+#         self.bn1 = nn.BatchNorm2d(dim)
+
+#     def forward(self, x):
+#         u = x.clone()
+#         attn = self.conv0(x)
+#         attn = self.bn0(attn)
+#         attn = self.conv_spatial(attn)
+#         attn = self.bn_spatial(attn)
+#         attn = self.conv1(attn)
+#         attn = self.bn1(attn)
+
+#         return u * attn
+    
+# # 4. 增加非线性激活函数
+# class LKA(nn.Module):
+#     def __init__(self, dim):
+#         super().__init__()
+#         self.conv0 = nn.Conv2d(dim, dim, 5, padding=2, groups=dim)
+#         self.conv_spatial = nn.Conv2d(dim, dim, 7, stride=1, padding=9, groups=dim, dilation=3)
+#         self.conv1 = nn.Conv2d(dim, dim, 1)
+
+#     def forward(self, x):
+#         u = x.clone()
+#         attn = self.conv0(x)
+#         attn = F.relu(attn)
+#         attn = self.conv_spatial(attn)
+#         attn = F.relu(attn)
+#         attn = self.conv1(attn)
+
+#         return u * attn
 
 class Attention(nn.Module):
     def __init__(self, d_model):
