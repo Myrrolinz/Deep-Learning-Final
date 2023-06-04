@@ -8,8 +8,8 @@ import torch.optim as optim
 from tqdm import tqdm
 
 
-from resnet import resnet50
-from test import res2net50_1
+# from resnet import resnet50
+# from test import res2net50_1
 
 epoches = 5  # 训练次数
 batch_size = 1024  # 训练批次(一次训练的数据
@@ -35,10 +35,10 @@ def read_data():
          transforms.Normalize(mean, std)])
 
     train_dataset = torchvision.datasets.CIFAR100(root='./data/CIFAR100', train=True,
-                                                  download=True, transform=transform_train)
+                                                  download=False, transform=transform_train)
 
     val_dataset = torchvision.datasets.CIFAR100(root='./data/CIFAR100', train=False,
-                                                download=True, transform=transform_val)
+                                                download=False, transform=transform_val)
 
     train_num = len(train_dataset)
     val_num = len(val_dataset)
@@ -73,9 +73,9 @@ def train():
     train_dataset, val_dataset, train_loader, val_loader = read_data()
 
     # 模型加载
-    # model = res2net50(num_classes=CIFAR100_class)
+    model = res2net50(num_classes=CIFAR100_class)
     # model = res2net50_1(num_classes=CIFAR100_class)
-    model = resnet50(num_classes=CIFAR100_class)
+    # model = resnet50(num_classes=CIFAR100_class)
     model.to(device)
     loss_function = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
