@@ -168,6 +168,8 @@ def main():
         model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
     elif args.arch == "VAN":
         model = van_b0()
+    # elif args.arch == "res2net":
+    #     model = res2net50_26w_4s(pretrained=False)
 
     model = model.to(device)
     # define loss function (criterion) and optimizer
