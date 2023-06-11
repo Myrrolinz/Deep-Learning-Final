@@ -81,7 +81,7 @@ parser.add_argument(
 parser.add_argument("--momentum", default=0.9, type=float, metavar="M", help="momentum")
 
 #resnet网络默认架构resnet18
-parser.add_argument("--depth", default=18, type=int, metavar="D", help="model depth")
+parser.add_argument("--depth", default=50, type=int, metavar="D", help="model depth")
 
 parser.add_argument(
     "--weight-decay",

@@ -7,3 +7,8 @@ checkpoints/*
 *.tar
 checkpoints/tripletnet_checkpoint.pth.tar
 checkpoints/tripletnet_model_best.pth.tar
+data/CIFAR100/cifar-100-python/file.txt~
+data/CIFAR100/cifar-100-python/meta
+data/CIFAR100/cifar-100-python/test
+data/CIFAR100/cifar-100-python/train
+data/CIFAR100/cifar-100-python.tar.gz
