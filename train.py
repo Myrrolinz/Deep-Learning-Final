@@ -16,6 +16,7 @@ import torchvision.transforms as transforms
 
 from resnet import *
 from van import *
+from van_multibranch import *
 from PIL import ImageFile
 from replknet import *
 from res2net import *
@@ -170,6 +171,8 @@ def main():
         model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
     elif args.arch == "VAN":
         model = van_b0()
+    elif args.arch == "van_multibranch":
+        model = van_b0_multibranch()
     elif args.arch == "res2net":
         model = res2net50()
     elif args.arch == "replknet":
@@ -265,6 +268,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
     end = time.time()
     for i, (input, target) in enumerate(train_loader):
         # measure data loading time
+        input = input.to(device)
+        target = target.to(device)
         data_time.update(time.time() - end)
 
         input_var = torch.autograd.Variable(input)
@@ -320,6 +325,8 @@ def validate(val_loader, model, criterion, epoch):
 
     end = time.time()
     for i, (input, target) in enumerate(val_loader):
+        input = input.to(device)
+        target = target.to(device)
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
 

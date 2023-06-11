@@ -6,6 +6,9 @@ from functools import partial
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 from timm.models.registry import register_model
 from timm.models.vision_transformer import _cfg
+from timm.models.layers import DropPath
+import os
+import sys
 import math
 
 def get_conv2d(in_channels, out_channels, kernel_size, stride, padding, dilation, groups, bias):
@@ -173,52 +176,66 @@ class ReparamLargeKernelConv(nn.Module):
 #         return u * attn
 
 # 1. 大核
+class LKA(nn.Module):
+    def __init__(self, dim):
+        super().__init__()
+        self.conv0 = nn.Conv2d(dim, dim, 7, padding=3, groups=dim)
+        self.conv_spatial = nn.Conv2d(dim, dim, 11, stride=1, padding=25, groups=dim, dilation=5)
+        self.conv1 = nn.Conv2d(dim, dim, 1)
+
+    def forward(self, x):
+        u = x.clone()
+        attn = self.conv0(x)
+        attn = self.conv_spatial(attn)
+        attn = self.conv1(attn)
+        return u * attn
+    
+# 2. 多尺度分支
 # class LKA(nn.Module):
-#     def __init__(self, dim):
+#     def __init__(self, dim, kernel_size=5):
 #         super().__init__()
-#         self.conv0 = nn.Conv2d(dim, dim, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3), groups=dim)
-#         self.conv_spatial = nn.Conv2d(dim, dim, kernel_size=(1, 1), stride=(1, 1))
-#         self.conv1 = nn.Conv2d(dim, dim, kernel_size=(1, 1), stride=(1, 1))
+#         self.conv0 = nn.Conv2d(dim, dim, kernel_size, padding=kernel_size//2, groups=dim)
+#         self.conv_spatial = nn.Conv2d(dim, dim, 2*kernel_size-1, stride=1, 
+#                                       padding=kernel_size * (kernel_size - 1) / 2, groups=dim, dilation=kernel_size)
+#         self.conv1 = nn.Conv2d(dim, dim, 1)
 
 #     def forward(self, x):
 #         u = x.clone()
 #         attn = self.conv0(x)
 #         attn = self.conv_spatial(attn)
 #         attn = self.conv1(attn)
-
 #         return u * attn
     
-# 2. 多尺度分支
-class MultiScaleBranch(nn.Module):
-    def __init__(self, dim):
-        super().__init__()
-        self.conv3x3 = nn.Conv2d(dim, dim, kernel_size=3, padding=1)
-        self.conv5x5 = nn.Conv2d(dim, dim, kernel_size=5, padding=2)
-        self.conv7x7 = nn.Conv2d(dim, dim, kernel_size=7, padding=3)
+# class MultiScaleBranch(nn.Module):
+#     def __init__(self, dim):
+#         super().__init__()
+#         self.conv3x3 = nn.Conv2d(dim, dim, kernel_size=3, padding=1)
+#         self.conv5x5 = nn.Conv2d(dim, dim, kernel_size=5, padding=2)
+#         self.conv7x7 = nn.Conv2d(dim, dim, kernel_size=7, padding=3)
 
-    def forward(self, x):
-        out_3x3 = self.conv3x3(x)
-        out_5x5 = self.conv5x5(x)
-        out_7x7 = self.conv7x7(x)
-        return torch.cat([out_3x3, out_5x5, out_7x7], dim=1)
+#     def forward(self, x):
+#         out_3x3 = self.conv3x3(x)
+#         out_5x5 = self.conv5x5(x)
+#         out_7x7 = self.conv7x7(x)
+#         return torch.cat([out_3x3, out_5x5, out_7x7], dim=1)
 
 
-class LKA(nn.Module):
-    def __init__(self, dim):
-        super().__init__()
-        self.conv0 = nn.Conv2d(dim, dim, kernel_size=5, padding=2, groups=dim)
-        self.conv_spatial = MultiScaleBranch(dim)
-        self.conv1 = nn.Conv2d(dim * 3, dim, kernel_size=1)
+# class LKA(nn.Module):
+#     def __init__(self, dim):
+#         super().__init__()
+#         self.conv0 = nn.Conv2d(dim, dim, kernel_size=5, padding=2, groups=dim)
+#         self.conv_spatial = MultiScaleBranch(dim)
+#         self.conv1 = nn.Conv2d(dim * 3, dim, kernel_size=1)
 
-    def forward(self, x):
-        u = x.clone()
-        attn = self.conv0(x)
-        attn = F.relu(attn)
-        attn = self.conv_spatial(attn)
-        attn = F.relu(attn)
-        attn = self.conv1(attn)
+#     def forward(self, x):
+#         u = x.clone()
+#         attn = self.conv0(x)
+#         attn = F.relu(attn)
+#         attn = self.conv_spatial(attn)
+#         attn = F.relu(attn)
+#         attn = self.conv1(attn)
 
-        return u * attn
+#         return u * attn
     
 # 3. 增加批归一化
 # class LKA(nn.Module):
