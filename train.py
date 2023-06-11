@@ -17,6 +17,7 @@ import torchvision.transforms as transforms
 from resnet import *
 from van import *
 from van_multibranch import *
+from van_replk import *
 from PIL import ImageFile
 from replknet import *
 from res2net import *
@@ -173,6 +174,8 @@ def main():
         model = van_b0()
     elif args.arch == "van_multibranch":
         model = van_b0_multibranch()
+    elif args.arch == "van_replk":
+        model = van_b0_replk()
     elif args.arch == "res2net":
         model = res2net50()
     elif args.arch == "replknet":
