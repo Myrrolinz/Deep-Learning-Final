@@ -1,2 +1,9 @@
 
 datasets/*
+wandb/*
+__pycache__/*
+checkpoints/*
+*.tar
+*.tar
+checkpoints/tripletnet_checkpoint.pth.tar
+checkpoints/tripletnet_model_best.pth.tar

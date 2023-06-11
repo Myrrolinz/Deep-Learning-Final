@@ -17,6 +17,8 @@ import torchvision.transforms as transforms
 from resnet import *
 from van import *
 from PIL import ImageFile
+from replknet import *
+from res2net import *
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 model_names = sorted(
@@ -139,7 +141,7 @@ def main():
     print("args", args)
 
     #日志名称在这里设置：
-    wandb.init(project="TripletAttention")
+    wandb.init(project="VAN")
 
     torch.manual_seed(args.seed)
     #torch.cuda.manual_seed_all(args.seed)
@@ -168,6 +170,10 @@ def main():
         model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
     elif args.arch == "VAN":
         model = van_b0()
+    elif args.arch == "res2net":
+        model = res2net50()
+    elif args.arch == "replknet":
+        model = create_RepLKNet31B(small_kernel_merged=False)
 
     model = model.to(device)
     # define loss function (criterion) and optimizer
