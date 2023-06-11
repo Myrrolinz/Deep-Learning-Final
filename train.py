@@ -18,6 +18,7 @@ from resnet import *
 from van import *
 from van_multibranch import *
 from van_replk import *
+from van_res2net import *
 from PIL import ImageFile
 from replknet import *
 from res2net import *
@@ -129,7 +130,7 @@ parser.add_argument(
 )
 
 #使用Triplet在这里设置：
-parser.add_argument("--att-type", type=str, choices=["TripletAttention","VAN"], default="TripletAttention")
+parser.add_argument("--att-type", type=str, choices=["TripletAttention", "VAN"], default="TripletAttention")
 best_prec1 = 0
 
 if not os.path.exists("./checkpoints"):
@@ -176,6 +177,8 @@ def main():
         model = van_b0_multibranch()
     elif args.arch == "van_replk":
         model = van_b0_replk()
+    elif args.arch == "van_res2net":
+        model = van_b0_res2net()
     elif args.arch == "res2net":
         model = res2net50()
     elif args.arch == "replknet":
