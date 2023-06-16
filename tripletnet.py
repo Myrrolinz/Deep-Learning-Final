@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 bestrelu="relu"  #后续直接修改这里可使用最优激活函数
+bestsigmoid="sigmoid" #后续直接在这里修改
 
 class BasicConv(nn.Module):
     def __init__(
@@ -55,25 +56,51 @@ class BasicConv(nn.Module):
 
 
 class ChannelPool(nn.Module):
+    def __init__(self,pool_types):
+        super(ChannelPool, self).__init__()
+        self.pool_types=pool_types
+
     def forward(self, x):
+        self.pool_list = []
+        for pool in self.pool_types:
+            if pool == "max":
+                self.pool_list.append(torch.max(x,1)[0].unsqueeze(1))
+            elif pool =="avg":
+                self.pool_list.append(torch.mean(x, 1).unsqueeze(1))
+            elif pool=="median":
+                self.pool_list.append(torch.median(x,1)[0].unsqueeze(1))
+            elif pool=="l1":
+                self.pool_list.append(torch.norm(x,p=1,dim=1).unsqueeze(1))
+            elif pool=="l2":
+                self.pool_list.append(torch.norm(x,p=2,dim=1).unsqueeze(1))
         return torch.cat(
-            (torch.max(x, 1)[0].unsqueeze(1), torch.mean(x, 1).unsqueeze(1)), dim=1
+            self.pool_list, dim=1
         )
 
 
 class SpatialGate(nn.Module):
-    def __init__(self,activation):
+    def __init__(self,activation,pool_types,replace_sigmoid):
         super(SpatialGate, self).__init__()
         kernel_size = 7
-        self.compress = ChannelPool()
+        self.compress = ChannelPool(pool_types)
+        in_planes=len(pool_types)
         self.spatial = BasicConv(
-            2, 1, kernel_size, stride=1, padding=(kernel_size - 1) // 2, activation=activation
+            in_planes, 1, kernel_size, stride=1, padding=(kernel_size - 1) // 2, activation=activation
         )
+        if replace_sigmoid=="sigmoid":
+            self.sig=nn.Sigmoid()
+        elif replace_sigmoid=="tanh":
+            self.sig=nn.Tanh()
+        elif replace_sigmoid=="softmax":
+            self.sig=nn.Softmax(dim=0)
+        else:
+            self.sig=nn.Sigmoid()
 
     def forward(self, x):
         x_compress = self.compress(x)
         x_out = self.spatial(x_compress)
-        scale = torch.sigmoid_(x_out)
+        #scale = torch.sigmoid_(x_out)
+        scale=self.sig(x_out)
         return x * scale
 
 
@@ -82,16 +109,17 @@ class TripletAttention(nn.Module):
         self,
         gate_channels,
         reduction_ratio=16,
-        pool_types=["avg", "max"],
+        pool_types=["avg", "max","median"],
         no_spatial=False,
-        activation=bestrelu
+        activation=bestrelu,
+        replace_sigmoid=bestsigmoid
     ):
         super(TripletAttention, self).__init__()
-        self.ChannelGateH = SpatialGate(activation)
-        self.ChannelGateW = SpatialGate(activation)
+        self.ChannelGateH = SpatialGate(activation,pool_types,replace_sigmoid)
+        self.ChannelGateW = SpatialGate(activation,pool_types,replace_sigmoid=replace_sigmoid)
         self.no_spatial = no_spatial
         if not no_spatial:
-            self.SpatialGate = SpatialGate(activation)
+            self.SpatialGate = SpatialGate(activation,pool_types,replace_sigmoid=replace_sigmoid)
 
     def forward(self, x):
         x_perm1 = x.permute(0, 2, 1, 3).contiguous()

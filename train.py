@@ -131,7 +131,7 @@ if not os.path.exists("./checkpoints"):
 #这里修改default参数可执行不同的任务：
 #none:直接执行模型，参数可以自己设置
 # activation:测试不同激活函数，会输出两张(loss,accuracy)多个激活函数的图 (记得截图!)
-parser.add_argument("--task",type=str,choices=["activation","none"],default="none")
+parser.add_argument("--task",type=str,choices=["activation","none","sigmoid"],default="none")
 
 def main():
     global args, best_prec1
@@ -278,35 +278,71 @@ def main():
                 loss_result.append(loss)
             acc_results[activation]=acc_result
             loss_results[activation]=loss_result
+        #绘图
+        multi_draw(args.task,act_func,acc_results,loss_results)
 
-        x = np.linspace(1, args.epochs, args.epochs)
-        #准确度绘图
-        plt.figure(figsize=(10,10))
-        for activation in act_func:
-            plt.plot(x,acc_results[activation])
-        plt.grid(True, linestyle='--', alpha=0.5)
-        plt.title("Accuracy(top1)")
-        plt.xlabel("epoch")
-        plt.ylabel("Test accuracy")
-        plt.legend(act_func)
-        plt.savefig("activation_accuracy")
-        plt.show()
+    elif args.task=="sigmoid":
+        test_func=["softmax","sigmoid","tanh"]
+        acc_results = {}
+        loss_results = {}
+        for activation in test_func:
+            print("\nTraining with {0} activation function\n", activation)
+            # 先定义模型、优化器、
+            if args.arch == "resnet":
+                act_model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type, replace_sigmoid=activation)
+            elif args.arch == "VAN":
+                act_model = van_b0()
+            act_criterion = nn.CrossEntropyLoss()
 
-        #损失绘图
-        plt.figure(figsize=(10,10))
-        for activation in act_func:
-            plt.plot(x,loss_results[activation])
-        plt.grid(True, linestyle='--', alpha=0.5)
-        plt.title("Loss")
-        plt.xlabel("epoch")
-        plt.ylabel("Test Loss")
-        plt.legend(act_func)
-        plt.savefig("activation_loss")
-        plt.show()
+            act_optimizer = torch.optim.SGD(
+                act_model.parameters(),
+                args.lr,
+                momentum=args.momentum,
+                weight_decay=args.weight_decay,
+            )
+            acc_result = []
+            loss_result = []
+            for epoch in range(args.start_epoch, args.epochs):
+                adjust_learning_rate(act_optimizer, epoch)
+
+                # train for one epoch
+                train(train_loader, act_model, act_criterion, act_optimizer, epoch)
+
+                top1, top5, loss = validate(val_loader, act_model, act_criterion, epoch)
+                acc_result.append(top1)
+                loss_result.append(loss)
+            acc_results[activation] = acc_result
+            loss_results[activation] = loss_result
+        multi_draw(args.task, test_func, acc_results, loss_results)
 
 
 
 
+def multi_draw(task,func,acc,loss):
+    x = np.linspace(1, args.epochs, args.epochs)
+    # 准确度绘图
+    plt.figure(figsize=(10, 10))
+    for activation in func:
+        plt.plot(x, acc[activation])
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.title("Accuracy(top1)")
+    plt.xlabel("epoch")
+    plt.ylabel("Test accuracy")
+    plt.legend(func)
+    plt.savefig(task+"Accuracy")
+    plt.show()
+
+    # 损失绘图
+    plt.figure(figsize=(10, 10))
+    for activation in func:
+        plt.plot(x, loss[activation])
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.title("Loss")
+    plt.xlabel("epoch")
+    plt.ylabel("Test Loss")
+    plt.legend(func)
+    plt.savefig(task+"Loss")
+    plt.show()
 def train(train_loader, model, criterion, optimizer, epoch):
     batch_time = AverageMeter()
     data_time = AverageMeter()
