@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+bestrelu="relu"  #后续直接修改这里可使用最优激活函数
 
 class BasicConv(nn.Module):
     def __init__(
@@ -12,9 +12,9 @@ class BasicConv(nn.Module):
         padding=0,
         dilation=1,
         groups=1,
-        relu=True,
         bn=True,
         bias=False,
+        activation=bestrelu
     ):
         super(BasicConv, self).__init__()
         self.out_channels = out_planes
@@ -33,7 +33,17 @@ class BasicConv(nn.Module):
             if bn
             else None
         )
-        self.relu = nn.ReLU() if relu else None
+        #self.relu = nn.ReLU() if relu else None
+        if activation=="relu":
+            self.relu=nn.ReLU()
+        elif activation=="sigmoid":
+            self.relu=nn.Sigmoid()
+        elif activation=="gelu":
+            self.relu=nn.GELU()
+        elif activation=="leaky-relu":
+            self.relu=nn.LeakyReLU()
+        else:
+            self.relu=None
 
     def forward(self, x):
         x = self.conv(x)
@@ -52,12 +62,12 @@ class ChannelPool(nn.Module):
 
 
 class SpatialGate(nn.Module):
-    def __init__(self):
+    def __init__(self,activation):
         super(SpatialGate, self).__init__()
         kernel_size = 7
         self.compress = ChannelPool()
         self.spatial = BasicConv(
-            2, 1, kernel_size, stride=1, padding=(kernel_size - 1) // 2, relu=False
+            2, 1, kernel_size, stride=1, padding=(kernel_size - 1) // 2, activation=activation
         )
 
     def forward(self, x):
@@ -74,13 +84,14 @@ class TripletAttention(nn.Module):
         reduction_ratio=16,
         pool_types=["avg", "max"],
         no_spatial=False,
+        activation=bestrelu
     ):
         super(TripletAttention, self).__init__()
-        self.ChannelGateH = SpatialGate()
-        self.ChannelGateW = SpatialGate()
+        self.ChannelGateH = SpatialGate(activation)
+        self.ChannelGateW = SpatialGate(activation)
         self.no_spatial = no_spatial
         if not no_spatial:
-            self.SpatialGate = SpatialGate()
+            self.SpatialGate = SpatialGate(activation)
 
     def forward(self, x):
         x_perm1 = x.permute(0, 2, 1, 3).contiguous()

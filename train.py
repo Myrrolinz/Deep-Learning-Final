@@ -13,11 +13,11 @@ import torch.utils.data
 import torchvision.datasets as datasets
 import torchvision.models as models
 import torchvision.transforms as transforms
-
+from matplotlib import pyplot as plt
 from resnet import *
 from van import *
 from PIL import ImageFile
-
+import numpy as np
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 model_names = sorted(
     name
@@ -128,6 +128,10 @@ best_prec1 = 0
 if not os.path.exists("./checkpoints"):
     os.mkdir("./checkpoints")
 
+#这里修改default参数可执行不同的任务：
+#none:直接执行模型，参数可以自己设置
+# activation:测试不同激活函数，会输出两张(loss,accuracy)多个激活函数的图 (记得截图!)
+parser.add_argument("--task",type=str,choices=["activation","none"],default="none")
 
 def main():
     global args, best_prec1
@@ -216,30 +220,91 @@ def main():
         validate(val_loader, model, criterion, 0)
         return
 
+    if args.task=="none":
+        for epoch in range(args.start_epoch, args.epochs):
+            adjust_learning_rate(optimizer, epoch)
 
-    for epoch in range(args.start_epoch, args.epochs):
-        adjust_learning_rate(optimizer, epoch)
+            # train for one epoch
+            train(train_loader, model, criterion, optimizer, epoch)
 
-        # train for one epoch
-        train(train_loader, model, criterion, optimizer, epoch)
+            # evaluate on validation set
+            prec1 = validate(val_loader, model, criterion, epoch)[0]
 
-        # evaluate on validation set
-        prec1 = validate(val_loader, model, criterion, epoch)
+            # remember best prec@1 and save checkpoint
+            is_best = prec1 > best_prec1
+            best_prec1 = max(prec1, best_prec1)
+            save_checkpoint(
+                {
+                    "epoch": epoch + 1,
+                    "arch": args.arch,
+                    "state_dict": model.state_dict(),
+                    "best_prec1": best_prec1,
+                    "optimizer": optimizer.state_dict(),
+                },
+                is_best,
+                args.prefix,
+            )
+    elif args.task=="activation":
+        #测试多种激活函数
+        act_func=['sigmoid','relu','gelu','leaky-relu']
+        #act_func = ['gelu', 'leaky-relu']
+        acc_results={}
+        loss_results={}
+        for activation in act_func:
+            print("\nTraining with {0} activation function\n",activation)
+            # 先定义模型、优化器、
+            if args.arch == "resnet":
+                act_model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type, activation=activation)
+            elif args.arch == "VAN":
+                act_model = van_b0()
+            act_criterion = nn.CrossEntropyLoss()
 
-        # remember best prec@1 and save checkpoint
-        is_best = prec1 > best_prec1
-        best_prec1 = max(prec1, best_prec1)
-        save_checkpoint(
-            {
-                "epoch": epoch + 1,
-                "arch": args.arch,
-                "state_dict": model.state_dict(),
-                "best_prec1": best_prec1,
-                "optimizer": optimizer.state_dict(),
-            },
-            is_best,
-            args.prefix,
-        )
+            act_optimizer = torch.optim.SGD(
+                act_model.parameters(),
+                args.lr,
+                momentum=args.momentum,
+                weight_decay=args.weight_decay,
+            )
+            acc_result=[]
+            loss_result=[]
+            for epoch in range(args.start_epoch, args.epochs):
+                adjust_learning_rate(act_optimizer, epoch)
+
+                # train for one epoch
+                train(train_loader, act_model, act_criterion, act_optimizer, epoch)
+
+                top1,top5,loss=validate(val_loader, act_model, act_criterion, epoch)
+                acc_result.append(top1)
+                loss_result.append(loss)
+            acc_results[activation]=acc_result
+            loss_results[activation]=loss_result
+
+        x = np.linspace(1, args.epochs, args.epochs)
+        #准确度绘图
+        plt.figure(figsize=(10,10))
+        for activation in act_func:
+            plt.plot(x,acc_results[activation])
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.title("Accuracy(top1)")
+        plt.xlabel("epoch")
+        plt.ylabel("Test accuracy")
+        plt.legend(act_func)
+        plt.savefig("activation_accuracy")
+        plt.show()
+
+        #损失绘图
+        plt.figure(figsize=(10,10))
+        for activation in act_func:
+            plt.plot(x,loss_results[activation])
+        plt.grid(True, linestyle='--', alpha=0.5)
+        plt.title("Loss")
+        plt.xlabel("epoch")
+        plt.ylabel("Test Loss")
+        plt.legend(act_func)
+        plt.savefig("activation_loss")
+        plt.show()
+
+
 
 
 def train(train_loader, model, criterion, optimizer, epoch):
@@ -253,6 +318,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
     model.train()
 
     end = time.time()
+
     for i, (input, target) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
@@ -309,6 +375,7 @@ def validate(val_loader, model, criterion, epoch):
     model.eval()
 
     end = time.time()
+
     for i, (input, target) in enumerate(val_loader):
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
@@ -355,7 +422,7 @@ def validate(val_loader, model, criterion, epoch):
         }
     )
 
-    return top1.avg
+    return top1.avg,top5.avg,losses.avg
 
 
 def save_checkpoint(state, is_best, prefix):
