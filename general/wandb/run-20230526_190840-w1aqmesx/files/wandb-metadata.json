@@ -1,0 +1,45 @@
+{
+    "os": "Windows-10-10.0.22621-SP0",
+    "python": "3.9.10",
+    "heartbeatAt": "2023-05-26T11:08:58.941803",
+    "startedAt": "2023-05-26T11:08:40.515540",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "-a",
+        "VAN"
+    ],
+    "state": "running",
+    "program": "D:\\LessonProjects\\Deep-Learning-Final\\general\\train.py",
+    "codePath": "general\\train.py",
+    "git": {
+        "remote": "https://github.com/Myrrolinz/Deep-Learning-Final.git",
+        "commit": "922514e84f6c96dfcfea668558140ebb7bcdb87e"
+    },
+    "email": "70125231+Myrrolinz@users.noreply.github.com",
+    "root": "D:/LessonProjects/Deep-Learning-Final",
+    "host": "Myrrolinz",
+    "username": "11955",
+    "executable": "D:\\Python39\\python.exe",
+    "cpu_count": 4,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 2419.0,
+        "min": 0.0,
+        "max": 2419.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2419.0,
+            "min": 0.0,
+            "max": 2419.0
+        }
+    ],
+    "disk": {
+        "total": 237.83983993530273,
+        "used": 204.16720581054688
+    },
+    "memory": {
+        "total": 15.800102233886719
+    }
+}

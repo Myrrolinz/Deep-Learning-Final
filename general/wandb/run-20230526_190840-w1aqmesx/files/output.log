@@ -1,0 +1,412 @@
+
+wandb: Network error resolved after 0:00:17.667710, resuming normal operation.
+Downloading https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz to ./datasets\cifar-100-python.tar.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 95%|██████████████████████████████████████████████████████████████████████████████████████████████████▊     | 160530432/169001437 [00:31<00:00, 11320204.62it/s]
+
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████| 169001437/169001437 [00:31<00:00, 5294278.89it/s]
+Files already downloaded and verified
+model
+VAN(
+  (patch_embed1): OverlapPatchEmbed(
+    (proj): Conv2d(3, 32, kernel_size=(7, 7), stride=(4, 4), padding=(3, 3))
+    (norm): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (block1): ModuleList(
+    (0): Block(
+      (norm1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(32, 32, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=32)
+          (conv_spatial): Conv2d(32, 32, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=32)
+          (conv1): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(32, 256, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (1): Block(
+      (norm1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(32, 32, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=32)
+          (conv_spatial): Conv2d(32, 32, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=32)
+          (conv1): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(32, 256, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (2): Block(
+      (norm1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(32, 32, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=32)
+          (conv_spatial): Conv2d(32, 32, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=32)
+          (conv1): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(32, 256, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=256)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(256, 32, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+  )
+  (norm1): LayerNorm((32,), eps=1e-06, elementwise_affine=True)
+  (patch_embed2): OverlapPatchEmbed(
+    (proj): Conv2d(32, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+    (norm): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (block2): ModuleList(
+    (0): Block(
+      (norm1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(64, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=64)
+          (conv_spatial): Conv2d(64, 64, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=64)
+          (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(64, 512, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=512)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(512, 64, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (1): Block(
+      (norm1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(64, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=64)
+          (conv_spatial): Conv2d(64, 64, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=64)
+          (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(64, 512, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=512)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(512, 64, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (2): Block(
+      (norm1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(64, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=64)
+          (conv_spatial): Conv2d(64, 64, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=64)
+          (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(64, 512, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=512)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(512, 64, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+  )
+  (norm2): LayerNorm((64,), eps=1e-06, elementwise_affine=True)
+  (patch_embed3): OverlapPatchEmbed(
+    (proj): Conv2d(64, 160, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+    (norm): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (block3): ModuleList(
+    (0): Block(
+      (norm1): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(160, 160, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=160)
+          (conv_spatial): Conv2d(160, 160, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=160)
+          (conv1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(160, 640, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(640, 640, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=640)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(640, 160, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (1): Block(
+      (norm1): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(160, 160, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=160)
+          (conv_spatial): Conv2d(160, 160, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=160)
+          (conv1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(160, 640, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(640, 640, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=640)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(640, 160, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (2): Block(
+      (norm1): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(160, 160, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=160)
+          (conv_spatial): Conv2d(160, 160, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=160)
+          (conv1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(160, 640, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(640, 640, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=640)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(640, 160, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (3): Block(
+      (norm1): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(160, 160, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=160)
+          (conv_spatial): Conv2d(160, 160, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=160)
+          (conv1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(160, 640, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(640, 640, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=640)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(640, 160, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (4): Block(
+      (norm1): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(160, 160, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=160)
+          (conv_spatial): Conv2d(160, 160, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=160)
+          (conv1): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(160, 160, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(160, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(160, 640, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(640, 640, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=640)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(640, 160, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+  )
+  (norm3): LayerNorm((160,), eps=1e-06, elementwise_affine=True)
+  (patch_embed4): OverlapPatchEmbed(
+    (proj): Conv2d(160, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+    (norm): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  )
+  (block4): ModuleList(
+    (0): Block(
+      (norm1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (conv_spatial): Conv2d(256, 256, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=256)
+          (conv1): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(1024, 1024, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1024)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+    (1): Block(
+      (norm1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (attn): Attention(
+        (proj_1): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+        (activation): GELU(approximate='none')
+        (spatial_gating_unit): LKA(
+          (conv0): Conv2d(256, 256, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=256)
+          (conv_spatial): Conv2d(256, 256, kernel_size=(7, 7), stride=(1, 1), padding=(9, 9), dilation=(3, 3), groups=256)
+          (conv1): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+        )
+        (proj_2): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+      )
+      (drop_path): Identity()
+      (norm2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (mlp): Mlp(
+        (fc1): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1))
+        (dwconv): DWConv(
+          (dwconv): Conv2d(1024, 1024, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1024)
+        )
+        (act): GELU(approximate='none')
+        (fc2): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1))
+        (drop): Dropout(p=0.0, inplace=False)
+      )
+    )
+  )
+  (norm4): LayerNorm((256,), eps=1e-06, elementwise_affine=True)
+  (head): Linear(in_features=256, out_features=1000, bias=True)
+)
+Number of model parameters: 4105800
+Epoch: [0][0/196]	Time 14.861 (14.861)	Data 12.700 (12.700)	Loss 6.9804 (6.9804)	Prec@1 0.000 (0.000)	Prec@5 0.391 (0.391)
+Epoch: [0][10/196]	Time 2.005 (3.214)	Data 0.000 (1.157)	Loss 5.8345 (6.4000)	Prec@1 2.344 (3.587)	Prec@5 21.094 (12.997)
+Epoch: [0][20/196]	Time 1.935 (2.637)	Data 0.000 (0.606)	Loss 5.2337 (5.9365)	Prec@1 8.984 (5.580)	Prec@5 23.047 (17.932)
+Epoch: [0][30/196]	Time 1.970 (2.450)	Data 0.000 (0.411)	Loss 5.0058 (5.6694)	Prec@1 10.547 (6.489)	Prec@5 28.125 (20.829)
+Epoch: [0][40/196]	Time 2.114 (2.352)	Data 0.000 (0.311)	Loss 4.8514 (5.4767)	Prec@1 13.672 (7.412)	Prec@5 30.469 (22.952)
+Epoch: [0][50/196]	Time 2.037 (2.293)	Data 0.000 (0.250)	Loss 4.5933 (5.3395)	Prec@1 7.812 (7.774)	Prec@5 30.078 (24.073)
+Epoch: [0][60/196]	Time 2.063 (2.260)	Data 0.000 (0.209)	Loss 4.4662 (5.1993)	Prec@1 7.812 (8.139)	Prec@5 35.547 (25.359)
+Epoch: [0][70/196]	Time 2.180 (2.239)	Data 0.000 (0.180)	Loss 4.2325 (5.0713)	Prec@1 14.062 (8.555)	Prec@5 32.031 (26.469)
+Epoch: [0][80/196]	Time 2.177 (2.226)	Data 0.000 (0.158)	Loss 4.0744 (4.9433)	Prec@1 10.547 (9.086)	Prec@5 39.062 (27.754)
+Epoch: [0][90/196]	Time 2.092 (2.212)	Data 0.000 (0.141)	Loss 3.7744 (4.8306)	Prec@1 14.453 (9.517)	Prec@5 39.453 (28.666)
+Epoch: [0][100/196]	Time 2.206 (2.203)	Data 0.000 (0.127)	Loss 3.7317 (4.7255)	Prec@1 16.797 (10.063)	Prec@5 40.625 (29.684)
+Epoch: [0][110/196]	Time 2.199 (2.191)	Data 0.000 (0.115)	Loss 3.7552 (4.6360)	Prec@1 13.281 (10.526)	Prec@5 40.625 (30.641)
+Epoch: [0][120/196]	Time 2.242 (2.194)	Data 0.008 (0.106)	Loss 3.6839 (4.5600)	Prec@1 18.750 (10.892)	Prec@5 42.188 (31.347)
+Epoch: [0][130/196]	Time 2.131 (2.192)	Data 0.000 (0.098)	Loss 3.6702 (4.4858)	Prec@1 15.234 (11.310)	Prec@5 39.844 (32.136)
+Epoch: [0][140/196]	Time 2.031 (2.187)	Data 0.000 (0.091)	Loss 3.4924 (4.4222)	Prec@1 16.797 (11.688)	Prec@5 41.797 (32.807)
+Epoch: [0][150/196]	Time 2.065 (2.181)	Data 0.001 (0.085)	Loss 3.8016 (4.3680)	Prec@1 11.719 (12.014)	Prec@5 39.453 (33.431)
+Epoch: [0][160/196]	Time 2.069 (2.173)	Data 0.000 (0.080)	Loss 3.4408 (4.3157)	Prec@1 20.312 (12.342)	Prec@5 47.656 (34.060)
+Epoch: [0][170/196]	Time 2.121 (2.170)	Data 0.000 (0.075)	Loss 3.2529 (4.2617)	Prec@1 21.875 (12.735)	Prec@5 50.000 (34.738)
+Epoch: [0][180/196]	Time 2.163 (2.168)	Data 0.000 (0.071)	Loss 3.4072 (4.2161)	Prec@1 16.016 (13.052)	Prec@5 43.359 (35.314)
+Epoch: [0][190/196]	Time 4.962 (2.249)	Data 0.000 (0.067)	Loss 3.2545 (4.1699)	Prec@1 23.828 (13.469)	Prec@5 52.344 (35.980)
+D:\LessonProjects\Deep-Learning-Final\general\train.py:313: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  input_var = torch.autograd.Variable(input, volatile=True)
+D:\LessonProjects\Deep-Learning-Final\general\train.py:314: UserWarning: volatile was removed and now has no effect. Use `with torch.no_grad():` instead.
+  target_var = torch.autograd.Variable(target, volatile=True)
+Test: [0/40]	Time 11.882 (11.882)	Loss 3.1455 (3.1455)	Prec@1 20.703 (20.703)	Prec@5 55.078 (55.078)
+Test: [10/40]	Time 1.274 (2.284)	Loss 3.3710 (3.3597)	Prec@1 18.750 (19.993)	Prec@5 46.484 (47.621)
+Test: [20/40]	Time 1.292 (1.803)	Loss 3.3928 (3.3607)	Prec@1 20.312 (19.922)	Prec@5 47.656 (47.712)
+Test: [30/40]	Time 0.500 (1.536)	Loss 3.4766 (3.3770)	Prec@1 16.016 (19.947)	Prec@5 42.969 (47.102)
+ * Prec@1 20.210 Prec@5 47.280
+Traceback (most recent call last):
+  File "D:\LessonProjects\Deep-Learning-Final\general\train.py", line 415, in <module>
+    main()
+  File "D:\LessonProjects\Deep-Learning-Final\general\train.py", line 232, in main
+    save_checkpoint(
+  File "D:\LessonProjects\Deep-Learning-Final\general\train.py", line 366, in save_checkpoint
+    wandb.save(filename)
+  File "D:\Python39\lib\site-packages\wandb\sdk\wandb_run.py", line 345, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "D:\Python39\lib\site-packages\wandb\sdk\wandb_run.py", line 335, in wrapper
+    return func(self, *args, **kwargs)
+  File "D:\Python39\lib\site-packages\wandb\sdk\wandb_run.py", line 1783, in save
+    return self._save(glob_str, base_path, policy)
+  File "D:\Python39\lib\site-packages\wandb\sdk\wandb_run.py", line 1837, in _save
+    os.symlink(abs_path, wandb_path)
+OSError: [WinError 1314] 客户端没有所需的特权。: 'D:\\LessonProjects\\Deep-Learning-Final\\general\\checkpoints\\tripletnet_checkpoint.pth.tar' -> 'D:\\LessonProjects\\Deep-Learning-Final\\general\\wandb\\run-20230526_190840-w1aqmesx\\files\\checkpoints\\tripletnet_checkpoint.pth.tar'

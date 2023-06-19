@@ -36,7 +36,8 @@ class Bottleneck(nn.Module):
         self.conv3 = nn.Conv2d(outplanes, planes * self.expansion, kernel_size=1, stride=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * self.expansion)
 
-        self.relu = nn.ReLU(inplace=True)
+        # self.relu = nn.ReLU(inplace=True)
+        self.celu = nn.CELU(inplace=True)
         # 处理第一个块
         if is_first_block == 1:
             self.pool = nn.AvgPool2d(kernel_size=3, stride=stride, padding=1)
@@ -52,7 +53,7 @@ class Bottleneck(nn.Module):
         # 1*1卷积层
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.relu(out)
+        out = self.celu(out)
 
         # 3*3卷积结构
         # x_scale = torch.chunk(out, self.scales, 1)  # 将x分割成scales块
@@ -80,7 +81,7 @@ class Bottleneck(nn.Module):
             else:
                 y_scale = y_scale + x_scales[i]
             y_scale = self.conv2[i](y_scale)
-            y_scale = self.relu(self.bn2[i](y_scale))
+            y_scale = self.celu(self.bn2[i](y_scale))
             if i == 0:
                 out = y_scale
             else:
@@ -100,7 +101,7 @@ class Bottleneck(nn.Module):
 
         # 残差连接 out=F(X)+X
         out += identity
-        out = self.relu(out)
+        out = self.celu(out)
 
         return out
 
@@ -114,7 +115,8 @@ class Res2Net(nn.Module):
         # 起始：7*7的卷积层，3*3的最大池化层
         self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(self.inplanes)
-        self.relu = nn.ReLU(inplace=True)
+        # self.relu = nn.ReLU(inplace=True)
+        self.celu = nn.CELU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         # 残差结构
@@ -130,6 +132,7 @@ class Res2Net(nn.Module):
         # 权重初始化
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
+                # nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
@@ -160,7 +163,7 @@ class Res2Net(nn.Module):
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.relu(x)
+        x = self.celu(x)
         x = self.maxpool(x)
 
         x = self.layer1(x)
