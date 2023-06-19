@@ -28,9 +28,9 @@ model_names = sorted(
 )
 
 
-<<<<<<< HEAD
+
 #等实现triplet后再拓展
-=======
+
 # from resnet import resnet50
 # from test import res2net50_1
 
@@ -38,7 +38,7 @@ epoches = 5  # 训练次数
 batch_size = 1024  # 训练批次(一次训练的数据
 CIFAR100_class = 100  # 数据集的分类类别数量
 learning_rate = 0.002  # 模型学习率
->>>>>>> 5edb965ee0dc5abc4b41635db92bfe048081fb26
+
 
 
 parser = argparse.ArgumentParser(description="PyTorch ImageNet Training")
@@ -180,7 +180,7 @@ def main():
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     ])
 
-<<<<<<< HEAD
+
     train_set = datasets.CIFAR100('./datasets', train=True,
                                              download=True, transform=transform_train)
     test_set = datasets.CIFAR100('./datasets', train=False,
@@ -190,13 +190,13 @@ def main():
                                                shuffle=True, num_workers=args.workers)
     val_loader = torch.utils.data.DataLoader(test_set, batch_size=args.batch_size,
                                               shuffle=False, num_workers=args.workers)
-=======
+
     train_dataset = torchvision.datasets.CIFAR100(root='./data/CIFAR100', train=True,
                                                   download=False, transform=transform_train)
 
     val_dataset = torchvision.datasets.CIFAR100(root='./data/CIFAR100', train=False,
                                                 download=False, transform=transform_val)
->>>>>>> 5edb965ee0dc5abc4b41635db92bfe048081fb26
+
 
     CIFAR100_class = 100  # 数据集的分类类别数量
 
@@ -209,8 +209,8 @@ def main():
 
 
 
-<<<<<<< HEAD
-=======
+
+
 def train():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("using {} device.".format(device))
@@ -222,7 +222,7 @@ def train():
     model = res2net50(num_classes=CIFAR100_class)
     # model = res2net50_1(num_classes=CIFAR100_class)
     # model = resnet50(num_classes=CIFAR100_class)
->>>>>>> 5edb965ee0dc5abc4b41635db92bfe048081fb26
+
     model.to(device)
 
     # define loss function (criterion) and optimizer
