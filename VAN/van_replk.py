@@ -432,6 +432,7 @@ def van_b1_replk(pretrained=False, **kwargs):
         embed_dims=[64, 128, 320, 512], mlp_ratios=[8, 8, 4, 4],
         norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[2, 2, 4, 2],
         **kwargs)
+    # 修改参数实现b1
     model.default_cfg = _cfg()
     if pretrained:
         model = load_model_weights(model, "van_b1", kwargs)
