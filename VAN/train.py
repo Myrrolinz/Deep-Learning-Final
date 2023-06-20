@@ -172,13 +172,13 @@ def main():
     if args.arch == "resnet":
         model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
     elif args.arch == "VAN":
-        model = van_b3()
+        model = van_b1()
     elif args.arch == "van_multibranch":
-        model = van_b0_multibranch()
+        model = van_b1_multibranch()
     elif args.arch == "van_replk":
         model = van_b1_replk()
     elif args.arch == "van_res2net":
-        model = van_b0_res2net()
+        model = van_b1_res2net()
     elif args.arch == "res2net":
         model = res2net50()
     elif args.arch == "replknet":
@@ -213,6 +213,8 @@ def main():
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
             args.start_epoch = checkpoint["epoch"]
+            # 此处修改epoch
+            args.epoch = args.start_epoch + args.epochs
             best_prec1 = checkpoint["best_prec1"]
             model.load_state_dict(checkpoint["state_dict"])
             if "optimizer" in checkpoint:
@@ -235,7 +237,7 @@ def main():
         validate(val_loader, model, criterion, 0)
         return
 
-
+    
     for epoch in range(args.start_epoch, args.epochs):
         adjust_learning_rate(optimizer, epoch)
 
