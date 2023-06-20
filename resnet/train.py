@@ -15,13 +15,8 @@ import torchvision.models as models
 import torchvision.transforms as transforms
 
 from resnet import *
-from van import *
-from van_multibranch import *
-from van_replk import *
-from van_res2net import *
 from PIL import ImageFile
-from replknet import *
-from res2net import *
+
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 model_names = sorted(
@@ -144,7 +139,7 @@ def main():
     print("args", args)
 
     #日志名称在这里设置：
-    wandb.init(project="VAN")
+    wandb.init(project="resnet")
 
     torch.manual_seed(args.seed)
     #torch.cuda.manual_seed_all(args.seed)
@@ -171,18 +166,6 @@ def main():
     #可以选择不同版本的网络
     if args.arch == "resnet":
         model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
-    elif args.arch == "VAN":
-        model = van_b3()
-    elif args.arch == "van_multibranch":
-        model = van_b0_multibranch()
-    elif args.arch == "van_replk":
-        model = van_b1_replk()
-    elif args.arch == "van_res2net":
-        model = van_b0_res2net()
-    elif args.arch == "res2net":
-        model = res2net50()
-    elif args.arch == "replknet":
-        model = create_RepLKNet31B(small_kernel_merged=False)
 
     model = model.to(device)
     # define loss function (criterion) and optimizer
