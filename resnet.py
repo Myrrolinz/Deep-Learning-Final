@@ -6,7 +6,9 @@ import torch.nn.functional as F
 from torch.nn import init
 
 from tripletnet import *
-
+from CA import *
+from tripletCA import *
+from tripletLKA import *
 
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
@@ -19,7 +21,7 @@ class BasicBlock(nn.Module):
     expansion = 1
 
     def __init__(
-        self, inplanes, planes, stride=1, downsample=None, use_triplet_attention=False,activation=None,replace_sigmoid=None
+        self, inplanes, planes, stride=1, downsample=None, att_type=None,activation=None,replace_sigmoid=None,pool_type=0
     ):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
@@ -30,10 +32,16 @@ class BasicBlock(nn.Module):
         self.downsample = downsample
         self.stride = stride
 
-        if use_triplet_attention:
-            self.triplet_attention = TripletAttention(planes, 16,activation=activation,replace_sigmoid=replace_sigmoid)
+        if att_type=="TripletAttention":
+            self.attention = TripletAttention(planes * 4, 16,activation=activation,replace_sigmoid=replace_sigmoid,pool_types=pool_type)
+        elif att_type=="TripletCA":
+            self.attention=TripletCAAttention(planes,16,combine=True)
+        elif att_type=="CA":
+            self.attention=CoordAtt(planes,planes,16)
+        elif att_type=="TripletLKA":
+            self.attention=TripletLKAAttention(planes*4,16)
         else:
-            self.triplet_attention = None
+            self.attention = None
 
     def forward(self, x):
         residual = x
@@ -48,8 +56,8 @@ class BasicBlock(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if not self.triplet_attention is None:
-            out = self.triplet_attention(out)
+        if not self.attention is None:
+            out = self.attention(out)
 
         out += residual
         out = self.relu(out)
@@ -61,7 +69,7 @@ class Bottleneck(nn.Module):
     expansion = 4
 
     def __init__(
-        self, inplanes, planes, stride=1, downsample=None, use_triplet_attention=False,activation=None,replace_sigmoid=None
+        self, inplanes, planes, stride=1, downsample=None, att_type=None,activation=None,replace_sigmoid=None,pool_type=0
     ):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
@@ -76,10 +84,16 @@ class Bottleneck(nn.Module):
         self.downsample = downsample
         self.stride = stride
 
-        if use_triplet_attention:
-            self.triplet_attention = TripletAttention(planes * 4, 16,activation=activation,replace_sigmoid=replace_sigmoid)
+        if att_type=="TripletAttention":
+            self.attention = TripletAttention(planes * 4, 16,activation=activation,replace_sigmoid=replace_sigmoid,pool_types=pool_type)
+        elif att_type=="TripletCA":
+            self.attention=TripletCAAttention(planes*4,16,combine=True)
+        elif att_type=="CA":
+            self.attention=CoordAtt(planes,planes,16)
+        elif att_type=="TripletLKA":
+            self.attention=TripletLKAAttention(planes*4,16)
         else:
-            self.triplet_attention = None
+            self.attention = None
 
     def forward(self, x):
         residual = x
@@ -98,8 +112,8 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if not self.triplet_attention is None:
-            out = self.triplet_attention(out)
+        if not self.attention is None:
+            out = self.attention(out)
 
         out += residual
         out = self.relu(out)
@@ -108,7 +122,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, block, layers, network_type, num_classes, att_type=None,activation=None,replace_sigmoid=None):
+    def __init__(self, block, layers, network_type, num_classes, att_type=None,activation=None,replace_sigmoid=None,pool_type=0):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.network_type = network_type
@@ -127,15 +141,15 @@ class ResNet(nn.Module):
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
 
-        self.layer1 = self._make_layer(block, 64, layers[0], att_type=att_type,activation=activation,replace_sigmoid=replace_sigmoid)
+        self.layer1 = self._make_layer(block, 64, layers[0], att_type=att_type,activation=activation,replace_sigmoid=replace_sigmoid,pool_type=pool_type)
         self.layer2 = self._make_layer(
-            block, 128, layers[1], stride=2, att_type=att_type,activation=activation,replace_sigmoid=replace_sigmoid
+            block, 128, layers[1], stride=2, att_type=att_type,activation=activation,replace_sigmoid=replace_sigmoid,pool_type=pool_type
         )
         self.layer3 = self._make_layer(
-            block, 256, layers[2], stride=2, att_type=att_type,activation=activation,replace_sigmoid=replace_sigmoid
+            block, 256, layers[2], stride=2, att_type=att_type,activation=activation,replace_sigmoid=replace_sigmoid,pool_type=pool_type
         )
         self.layer4 = self._make_layer(
-            block, 512, layers[3], stride=2, att_type=att_type,activation=activation,replace_sigmoid=replace_sigmoid
+            block, 512, layers[3], stride=2, att_type=att_type,activation=activation,replace_sigmoid=replace_sigmoid,pool_type=pool_type
         )
 
         self.fc = nn.Linear(512 * block.expansion, num_classes)
@@ -153,7 +167,7 @@ class ResNet(nn.Module):
             elif key.split(".")[-1] == "bias":
                 self.state_dict()[key][...] = 0
 
-    def _make_layer(self, block, planes, blocks, stride=1, att_type=None,activation=None,replace_sigmoid=None):
+    def _make_layer(self, block, planes, blocks, stride=1, att_type=None,activation=None,replace_sigmoid=None,pool_type=0):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
@@ -174,9 +188,10 @@ class ResNet(nn.Module):
                 planes,
                 stride,
                 downsample,
-                use_triplet_attention=att_type == "TripletAttention",
+                att_type=att_type,
                 activation=activation,
-                replace_sigmoid=replace_sigmoid
+                replace_sigmoid=replace_sigmoid,
+                pool_type=pool_type
             )
         )
         self.inplanes = planes * block.expansion
@@ -185,9 +200,10 @@ class ResNet(nn.Module):
                 block(
                     self.inplanes,
                     planes,
-                    use_triplet_attention=att_type == "TripletAttention",
+                    att_type = att_type,
                     activation=activation,
-                    replace_sigmoid=replace_sigmoid
+                    replace_sigmoid=replace_sigmoid,
+                    pool_type=pool_type
                 )
             )
 
@@ -214,7 +230,7 @@ class ResNet(nn.Module):
         return x
 
 
-def ResidualNet(network_type, depth, num_classes, att_type,activation=None,replace_sigmoid=None):
+def ResidualNet(network_type, depth, num_classes, att_type,activation=None,replace_sigmoid=None,pool_type=0):
 
     assert network_type in [
         "CIFAR100",
@@ -222,15 +238,15 @@ def ResidualNet(network_type, depth, num_classes, att_type,activation=None,repla
     assert depth in [18, 34, 50, 101], "network depth should be 18, 34, 50 or 101"
 
     if depth == 18:
-        model = ResNet(BasicBlock, [2, 2, 2, 2], network_type, num_classes, att_type,activation=activation,replace_sigmoid=replace_sigmoid)
+        model = ResNet(BasicBlock, [2, 2, 2, 2], network_type, num_classes, att_type,activation=activation,replace_sigmoid=replace_sigmoid,pool_type=pool_type)
 
     elif depth == 34:
-        model = ResNet(BasicBlock, [3, 4, 6, 3], network_type, num_classes, att_type,activation=activation,replace_sigmoid=replace_sigmoid)
+        model = ResNet(BasicBlock, [3, 4, 6, 3], network_type, num_classes, att_type,activation=activation,replace_sigmoid=replace_sigmoid,pool_type=pool_type)
 
     elif depth == 50:
-        model = ResNet(Bottleneck, [3, 4, 6, 3], network_type, num_classes, att_type,activation=activation,replace_sigmoid=replace_sigmoid)
+        model = ResNet(Bottleneck, [3, 4, 6, 3], network_type, num_classes, att_type,activation=activation,replace_sigmoid=replace_sigmoid,pool_type=pool_type)
 
     elif depth == 101:
-        model = ResNet(Bottleneck, [3, 4, 23, 3], network_type, num_classes, att_type,activation=activation,replace_sigmoid=replace_sigmoid)
+        model = ResNet(Bottleneck, [3, 4, 23, 3], network_type, num_classes, att_type,activation=activation,replace_sigmoid=replace_sigmoid,pool_type=pool_type)
 
     return model

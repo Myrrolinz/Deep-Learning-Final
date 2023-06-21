@@ -62,19 +62,31 @@ class ChannelPool(nn.Module):
 
     def forward(self, x):
         self.pool_list = []
-        for pool in self.pool_types:
+        self.pool_lists = []
+        if self.pool_types==0:
+            self.pool_list=["avg","max"]
+        elif self.pool_types==1:
+            self.pool_list=["avg", "max","median"]
+        elif self.pool_types==2:
+            self.pool_list=["l1", "max"]
+        elif self.pool_types==3:
+            self.pool_list=["l2", "max"]
+        else:
+            self.pool_list = ["avg", "max"]
+
+        for pool in self.pool_list:
             if pool == "max":
-                self.pool_list.append(torch.max(x,1)[0].unsqueeze(1))
+                self.pool_lists.append(torch.max(x,1)[0].unsqueeze(1))
             elif pool =="avg":
-                self.pool_list.append(torch.mean(x, 1).unsqueeze(1))
+                self.pool_lists.append(torch.mean(x, 1).unsqueeze(1))
             elif pool=="median":
-                self.pool_list.append(torch.median(x,1)[0].unsqueeze(1))
+                self.pool_lists.append(torch.median(x,1)[0].unsqueeze(1))
             elif pool=="l1":
-                self.pool_list.append(torch.norm(x,p=1,dim=1).unsqueeze(1))
+                self.pool_lists.append(torch.norm(x,p=1,dim=1).unsqueeze(1))
             elif pool=="l2":
-                self.pool_list.append(torch.norm(x,p=2,dim=1).unsqueeze(1))
+                self.pool_lists.append(torch.norm(x,p=2,dim=1).unsqueeze(1))
         return torch.cat(
-            self.pool_list, dim=1
+            self.pool_lists, dim=1
         )
 
 
@@ -83,7 +95,10 @@ class SpatialGate(nn.Module):
         super(SpatialGate, self).__init__()
         kernel_size = 7
         self.compress = ChannelPool(pool_types)
-        in_planes=len(pool_types)
+        if pool_types==1:
+            in_planes=3
+        else:
+            in_planes=2
         self.spatial = BasicConv(
             in_planes, 1, kernel_size, stride=1, padding=(kernel_size - 1) // 2, activation=activation
         )
@@ -109,10 +124,10 @@ class TripletAttention(nn.Module):
         self,
         gate_channels,
         reduction_ratio=16,
-        pool_types=["avg", "max","median"],
         no_spatial=False,
         activation=bestrelu,
-        replace_sigmoid=bestsigmoid
+        replace_sigmoid=bestsigmoid,
+        pool_types=0,
     ):
         super(TripletAttention, self).__init__()
         self.ChannelGateH = SpatialGate(activation,pool_types,replace_sigmoid)

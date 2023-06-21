@@ -48,7 +48,7 @@ parser.add_argument(
     help="number of data loading workers (default: 4)",
 )
 parser.add_argument(
-    "--epochs", default=10, type=int, metavar="N", help="number of total epochs to run"
+    "--epochs", default=50, type=int, metavar="N", help="number of total epochs to run"
 )
 parser.add_argument(
     "--start-epoch",
@@ -122,16 +122,35 @@ parser.add_argument(
 )
 
 #使用Triplet在这里设置：
-parser.add_argument("--att-type", type=str, choices=["TripletAttention","VAN"], default="TripletAttention")
+parser.add_argument("--att-type", type=str, choices=["TripletAttention","VAN","TripletCA","CA","TripletLKA"], default="TripletAttention")
+
+#任务类型，用于统一wandb的数据管理
+parser.add_argument("--task",type=str,choices=["Triplet_activation","Triplet_sigmoid","baseline"])
+
+
+#设置activation
+parser.add_argument("--activation",type=str,choices=['sigmoid','relu','gelu','leaky-relu'],default="sigmoid")
+
+#设置sigmoid
+parser.add_argument("--sigmoid",type=str,choices=["softmax","sigmoid","tanh"],default="sigmoid")
+
+#设置Triplet CA的消融实验
+
+#设置pool
+#0:["avg", "max"]
+#1:["avg", "max","median"]
+#2:["l1", "max"]
+#3:["l2", "max"]
+#4:[待定]
+parser.add_argument("--pool",type=int,default=0)
 best_prec1 = 0
 
 if not os.path.exists("./checkpoints"):
     os.mkdir("./checkpoints")
 
-#这里修改default参数可执行不同的任务：
-#none:直接执行模型，参数可以自己设置
-# activation:测试不同激活函数，会输出两张(loss,accuracy)多个激活函数的图 (记得截图!)
-parser.add_argument("--task",type=str,choices=["activation","none","sigmoid"],default="none")
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("using {} device.".format(device))
 
 def main():
     global args, best_prec1
@@ -139,8 +158,37 @@ def main():
     args = parser.parse_args()
     print("args", args)
 
-    #日志名称在这里设置：
-    wandb.init(project="TripletAttention")
+    #日志名称在这里设置：,'relu','gelu','leaky-relu'
+    if args.task=="Triplet_activation":
+        m_name=args.activation
+    elif args.task=="Triplet_sigmoid":
+        m_name=args.sigmoid
+    elif args.task=="Triplet_pool":
+        if args.pool==0:
+            m_name="[avg, max]"
+        elif args.pool==1:
+            m_name="[avg, max,median]"
+        elif args.pool==2:
+            m_name="[l1, max]"
+        elif args.pool==3:
+            m_name="[l2,max]"
+        else:
+            m_name="[avg, max]"
+    elif args.task=="TripletCA":
+        m_name="TripletCA"
+    elif args.task=="TripletLKA":
+        m_name="TripletLKA"
+    elif args.task=="baseline":
+        if args.att_type=="TripletAttention":
+            m_name="Triplet"
+        else:
+            m_name=args.att_type
+    else:
+        m_name="fault"
+
+
+
+    wandb.init(project=args.task,name=m_name)
 
     torch.manual_seed(args.seed)
     #torch.cuda.manual_seed_all(args.seed)
@@ -166,12 +214,19 @@ def main():
     # create model
     #可以选择不同版本的网络
     if args.arch == "resnet":
-        model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
+        model = ResidualNet("CIFAR100",
+                            depth=args.depth,
+                            num_classes=1000,
+                            att_type=args.att_type,
+                            activation=args.activation,
+                            replace_sigmoid=args.sigmoid,
+                            pool_type=args.pool)
     elif args.arch == "VAN":
         model = van_b0()
 
+    model.to(device)
     # define loss function (criterion) and optimizer
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss().to(device)
 
     optimizer = torch.optim.SGD(
         model.parameters(),
@@ -220,100 +275,129 @@ def main():
         validate(val_loader, model, criterion, 0)
         return
 
-    if args.task=="none":
-        for epoch in range(args.start_epoch, args.epochs):
-            adjust_learning_rate(optimizer, epoch)
+    for epoch in range(args.start_epoch, args.epochs):
+        adjust_learning_rate(optimizer, epoch)
 
-            # train for one epoch
-            train(train_loader, model, criterion, optimizer, epoch)
+        # train for one epoch
+        train(train_loader, model, criterion, optimizer, epoch)
 
-            # evaluate on validation set
-            prec1 = validate(val_loader, model, criterion, epoch)[0]
+        # evaluate on validation set
+        prec1 = validate(val_loader, model, criterion, epoch)[0]
 
-            # remember best prec@1 and save checkpoint
-            is_best = prec1 > best_prec1
-            best_prec1 = max(prec1, best_prec1)
-            save_checkpoint(
-                {
-                    "epoch": epoch + 1,
-                    "arch": args.arch,
-                    "state_dict": model.state_dict(),
-                    "best_prec1": best_prec1,
-                    "optimizer": optimizer.state_dict(),
-                },
-                is_best,
-                args.prefix,
-            )
-    elif args.task=="activation":
-        #测试多种激活函数
-        act_func=['sigmoid','relu','gelu','leaky-relu']
-        #act_func = ['gelu', 'leaky-relu']
-        acc_results={}
-        loss_results={}
-        for activation in act_func:
-            print("\nTraining with {0} activation function\n",activation)
-            # 先定义模型、优化器、
-            if args.arch == "resnet":
-                act_model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type, activation=activation)
-            elif args.arch == "VAN":
-                act_model = van_b0()
-            act_criterion = nn.CrossEntropyLoss()
+        # remember best prec@1 and save checkpoint
+        is_best = prec1 > best_prec1
+        best_prec1 = max(prec1, best_prec1)
+        save_checkpoint(
+            {
+                "epoch": epoch + 1,
+                "arch": args.arch,
+                "state_dict": model.state_dict(),
+                "best_prec1": best_prec1,
+                "optimizer": optimizer.state_dict(),
+            },
+            is_best,
+            args.prefix,
+        )
+    # if args.task=="none":
+    #     for epoch in range(args.start_epoch, args.epochs):
+    #         adjust_learning_rate(optimizer, epoch)
+    #
+    #         # train for one epoch
+    #         train(train_loader, model, criterion, optimizer, epoch)
+    #
+    #         # evaluate on validation set
+    #         prec1 = validate(val_loader, model, criterion, epoch)[0]
+    #
+    #         # remember best prec@1 and save checkpoint
+    #         is_best = prec1 > best_prec1
+    #         best_prec1 = max(prec1, best_prec1)
+    #         save_checkpoint(
+    #             {
+    #                 "epoch": epoch + 1,
+    #                 "arch": args.arch,
+    #                 "state_dict": model.state_dict(),
+    #                 "best_prec1": best_prec1,
+    #                 "optimizer": optimizer.state_dict(),
+    #             },
+    #             is_best,
+    #             args.prefix,
+    #         )
+    # elif args.task=="activation":
+    #     #测试多种激活函数
+    #     act_func=['sigmoid','relu','gelu','leaky-relu']
+    #     #act_func = ['gelu', 'leaky-relu']
+    #     acc_results={}
+    #     loss_results={}
+    #     for activation in act_func:
+    #         print("\nTraining with {0} activation function\n",activation)
+    #         # 先定义模型、优化器、
+    #         if args.arch == "resnet":
+    #             act_model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type, activation=activation)
+    #         elif args.arch == "VAN":
+    #             act_model = van_b0()
+    #
+    #         act_model=act_model.to(device)
+    #         act_criterion = nn.CrossEntropyLoss().to(device)
+    #
+    #         act_optimizer = torch.optim.SGD(
+    #             act_model.parameters(),
+    #             args.lr,
+    #             momentum=args.momentum,
+    #             weight_decay=args.weight_decay,
+    #         )
+    #         acc_result=[]
+    #         loss_result=[]
+    #         for epoch in range(args.start_epoch, args.epochs):
+    #             adjust_learning_rate(act_optimizer, epoch)
+    #
+    #             # train for one epoch
+    #             train(train_loader, act_model, act_criterion, act_optimizer, epoch)
+    #
+    #             top1,top5,loss=validate(val_loader, act_model, act_criterion, epoch)
+    #             acc_result.append(top1)
+    #             loss_result.append(loss)
+    #         acc_results[activation]=acc_result
+    #         loss_results[activation]=loss_result
+    #     #绘图
+    #     multi_draw(args.task,act_func,acc_results,loss_results)
+    #
+    # elif args.task=="sigmoid":
+    #     test_func=["softmax","sigmoid","tanh"]
+    #     acc_results = {}
+    #     loss_results = {}
+    #     for activation in test_func:
+    #         print("\nTraining with {0} activation function\n", activation)
+    #         # 先定义模型、优化器、
+    #         if args.arch == "resnet":
+    #             act_model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type, replace_sigmoid=activation)
+    #         elif args.arch == "VAN":
+    #             act_model = van_b0()
+    #
+    #         act_model=act_model.to(device)
+    #         act_criterion = nn.CrossEntropyLoss().to(device)
+    #
+    #         act_optimizer = torch.optim.SGD(
+    #             act_model.parameters(),
+    #             args.lr,
+    #             momentum=args.momentum,
+    #             weight_decay=args.weight_decay,
+    #         )
+    #         acc_result = []
+    #         loss_result = []
+    #         for epoch in range(args.start_epoch, args.epochs):
+    #             adjust_learning_rate(act_optimizer, epoch)
+    #
+    #             # train for one epoch
+    #             train(train_loader, act_model, act_criterion, act_optimizer, epoch)
+    #
+    #             top1, top5, loss = validate(val_loader, act_model, act_criterion, epoch)
+    #             acc_result.append(top1)
+    #             loss_result.append(loss)
+    #         acc_results[activation] = acc_result
+    #         loss_results[activation] = loss_result
+    #     multi_draw(args.task, test_func, acc_results, loss_results)
 
-            act_optimizer = torch.optim.SGD(
-                act_model.parameters(),
-                args.lr,
-                momentum=args.momentum,
-                weight_decay=args.weight_decay,
-            )
-            acc_result=[]
-            loss_result=[]
-            for epoch in range(args.start_epoch, args.epochs):
-                adjust_learning_rate(act_optimizer, epoch)
 
-                # train for one epoch
-                train(train_loader, act_model, act_criterion, act_optimizer, epoch)
-
-                top1,top5,loss=validate(val_loader, act_model, act_criterion, epoch)
-                acc_result.append(top1)
-                loss_result.append(loss)
-            acc_results[activation]=acc_result
-            loss_results[activation]=loss_result
-        #绘图
-        multi_draw(args.task,act_func,acc_results,loss_results)
-
-    elif args.task=="sigmoid":
-        test_func=["softmax","sigmoid","tanh"]
-        acc_results = {}
-        loss_results = {}
-        for activation in test_func:
-            print("\nTraining with {0} activation function\n", activation)
-            # 先定义模型、优化器、
-            if args.arch == "resnet":
-                act_model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type, replace_sigmoid=activation)
-            elif args.arch == "VAN":
-                act_model = van_b0()
-            act_criterion = nn.CrossEntropyLoss()
-
-            act_optimizer = torch.optim.SGD(
-                act_model.parameters(),
-                args.lr,
-                momentum=args.momentum,
-                weight_decay=args.weight_decay,
-            )
-            acc_result = []
-            loss_result = []
-            for epoch in range(args.start_epoch, args.epochs):
-                adjust_learning_rate(act_optimizer, epoch)
-
-                # train for one epoch
-                train(train_loader, act_model, act_criterion, act_optimizer, epoch)
-
-                top1, top5, loss = validate(val_loader, act_model, act_criterion, epoch)
-                acc_result.append(top1)
-                loss_result.append(loss)
-            acc_results[activation] = acc_result
-            loss_results[activation] = loss_result
-        multi_draw(args.task, test_func, acc_results, loss_results)
 
 
 
@@ -356,6 +440,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
     end = time.time()
 
     for i, (input, target) in enumerate(train_loader):
+        input = input.to(device)
+        target = target.to(device)
         # measure data loading time
         data_time.update(time.time() - end)
 
@@ -413,6 +499,8 @@ def validate(val_loader, model, criterion, epoch):
     end = time.time()
 
     for i, (input, target) in enumerate(val_loader):
+        input = input.to(device)
+        target = target.to(device)
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
 
