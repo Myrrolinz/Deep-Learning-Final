@@ -176,19 +176,19 @@ class ReparamLargeKernelConv(nn.Module):
 #         return u * attn
 
 # 1. 大核
-class LKA(nn.Module):
-    def __init__(self, dim):
-        super().__init__()
-        self.conv0 = nn.Conv2d(dim, dim, 7, padding=3, groups=dim)
-        self.conv_spatial = nn.Conv2d(dim, dim, 11, stride=1, padding=25, groups=dim, dilation=5)
-        self.conv1 = nn.Conv2d(dim, dim, 1)
+# class LKA(nn.Module):
+#     def __init__(self, dim):
+#         super().__init__()
+#         self.conv0 = nn.Conv2d(dim, dim, 7, padding=3, groups=dim)
+#         self.conv_spatial = nn.Conv2d(dim, dim, 11, stride=1, padding=25, groups=dim, dilation=5)
+#         self.conv1 = nn.Conv2d(dim, dim, 1)
 
-    def forward(self, x):
-        u = x.clone()
-        attn = self.conv0(x)
-        attn = self.conv_spatial(attn)
-        attn = self.conv1(attn)
-        return u * attn
+#     def forward(self, x):
+#         u = x.clone()
+#         attn = self.conv0(x)
+#         attn = self.conv_spatial(attn)
+#         attn = self.conv1(attn)
+#         return u * attn
     
 # 2. 多尺度分支
 # class LKA(nn.Module):
@@ -260,22 +260,22 @@ class LKA(nn.Module):
 #         return u * attn
     
 # # 4. 增加非线性激活函数
-# class LKA(nn.Module):
-#     def __init__(self, dim):
-#         super().__init__()
-#         self.conv0 = nn.Conv2d(dim, dim, 5, padding=2, groups=dim)
-#         self.conv_spatial = nn.Conv2d(dim, dim, 7, stride=1, padding=9, groups=dim, dilation=3)
-#         self.conv1 = nn.Conv2d(dim, dim, 1)
+class LKA(nn.Module):
+    def __init__(self, dim):
+        super().__init__()
+        self.conv0 = nn.Conv2d(dim, dim, 5, padding=2, groups=dim)
+        self.conv_spatial = nn.Conv2d(dim, dim, 7, stride=1, padding=9, groups=dim, dilation=3)
+        self.conv1 = nn.Conv2d(dim, dim, 1)
 
-#     def forward(self, x):
-#         u = x.clone()
-#         attn = self.conv0(x)
-#         attn = F.relu(attn)
-#         attn = self.conv_spatial(attn)
-#         attn = F.relu(attn)
-#         attn = self.conv1(attn)
+    def forward(self, x):
+        u = x.clone()
+        attn = self.conv0(x)
+        attn = F.celu(attn)
+        attn = self.conv_spatial(attn)
+        attn = F.celu(attn)
+        attn = self.conv1(attn)
 
-#         return u * attn
+        return u * attn
 
 class Attention(nn.Module):
     def __init__(self, d_model):

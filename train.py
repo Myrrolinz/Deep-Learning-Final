@@ -172,13 +172,13 @@ def main():
     if args.arch == "resnet":
         model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
     elif args.arch == "VAN":
-        model = van_b0()
+        model = van_b1()
     elif args.arch == "van_multibranch":
-        model = van_b0_multibranch()
+        model = van_b1_multibranch()
     elif args.arch == "van_replk":
         model = van_b0_replk()
     elif args.arch == "van_res2net":
-        model = van_b0_res2net()
+        model = van_b1_res2net()
     elif args.arch == "res2net":
         model = res2net50()
     elif args.arch == "replknet":

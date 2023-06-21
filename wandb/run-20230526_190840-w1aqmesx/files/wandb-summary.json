@@ -1,1 +1,0 @@
-{"parameters": 4105800, "_timestamp": 1685099867.93764, "_runtime": 547.4054658412933, "_step": 2, "lr": 0.1, "epoch": 0, "Top-1 accuracy": 20.21, "Top-5 accuracy": 47.28, "loss": 3.3717567878723145, "_wandb": {"runtime": 529}}

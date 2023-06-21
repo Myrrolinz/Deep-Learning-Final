@@ -12,3 +12,7 @@ data/CIFAR100/cifar-100-python/meta
 data/CIFAR100/cifar-100-python/test
 data/CIFAR100/cifar-100-python/train
 data/CIFAR100/cifar-100-python.tar.gz
+*.pyc
+*.pyc
+*.gz
+*.zip
