@@ -4,11 +4,12 @@ import torch.nn as nn
 
 #SE模块
 class SEModule(nn.Module):
-    def __init__(self, channels, reduction=16, activation='gelu'):
+    def __init__(self, channels, reduction=16, activation='relu'):
         super(SEModule, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc1 = nn.Conv2d(channels, channels // reduction, kernel_size=1, padding=0)
-
+         
+        #激活函数
         if activation == 'relu':
             self.activation = nn.ReLU(inplace=True)
         elif activation == 'celu':
@@ -40,7 +41,7 @@ class Bottleneck(nn.Module):
     expansion = 4
 
     # 后续需要为其添加新参数
-    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1, is_first_block=0, se=True, activation='gelu'):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1, is_first_block=0, se=True, activation='celu'):
         super(Bottleneck, self).__init__()
 
         self.downsample = downsample
@@ -64,7 +65,8 @@ class Bottleneck(nn.Module):
         # 第三个卷积层：卷积核尺寸： 1×1 ，填充值为 0， 步长为 1
         self.conv3 = nn.Conv2d(outplanes, planes * self.expansion, kernel_size=1, stride=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * self.expansion)
-
+        
+        #激活函数
         if activation == 'relu':
             self.activation = nn.ReLU(inplace=True)
         elif activation == 'celu':
@@ -151,14 +153,34 @@ class Bottleneck(nn.Module):
 
 
 class Res2Net(nn.Module):
-    def __init__(self, block, layers, num_classes=1000, scales=4, groups=1, se=True, activation = 'elu'):
+    def __init__(self, block, layers, num_classes=1000, scales=4, groups=1, se=True, activation = 'celu'):
         super(Res2Net, self).__init__()
         # 通道数初始化
         self.inplanes = 64
 
         # 起始：7*7的卷积层，3*3的最大池化层
-        self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
+        # self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
+        # self.bn1 = nn.BatchNorm2d(self.inplanes)
+
+        self.conv1 = nn.Sequential( nn.Conv2d(3, self.inplanes, kernel_size=3, stride=2, padding=1, bias=False),
+                                    nn.BatchNorm2d(self.inplanes),
+                                    # nn.ReLU(inplace=True),
+                                    nn.CELU(inplace=True),
+                                    nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
+                                    nn.BatchNorm2d(self.inplanes),
+                                    # nn.ReLU(inplace=True),
+                                    nn.CELU(inplace=True),
+                                    nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
+                                    nn.BatchNorm2d(self.inplanes),
+                                    # nn.ReLU(inplace=True)
+                                    nn.CELU(inplace=True),
+                                  )
+        
         self.bn1 = nn.BatchNorm2d(self.inplanes)
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+
+
+        #激活函数
         if activation == 'relu':
             self.activation = nn.ReLU(inplace=True)
         elif activation == 'celu':
@@ -172,7 +194,7 @@ class Res2Net(nn.Module):
         else:
             raise NotImplementedError(f"Activation not implemented!")
         
-        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        
 
         # 残差结构
         self.layer1 = self._make_layer(block, 64, layers[0], stride=1, scales=scales, groups=groups, se=se)
@@ -207,6 +229,7 @@ class Res2Net(nn.Module):
         layers.append(block(self.inplanes, planes, stride=stride, downsample=downsample,
                             scales=scales, groups=groups, is_first_block=1, se=se))
         self.inplanes = planes * block.expansion
+        
 
         # 通过循环堆叠其余残差块
         for i in range(1, layer):
