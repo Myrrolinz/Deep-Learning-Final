@@ -14,8 +14,8 @@ import torchvision.datasets as datasets
 import torchvision.models as models
 import torchvision.transforms as transforms
 
-from resnet import *
 from res2net import *
+
 
 from PIL import ImageFile
 import wandb
@@ -28,17 +28,7 @@ model_names = sorted(
 )
 
 
-
 #等实现triplet后再拓展
-
-# from resnet import resnet50
-# from test import res2net50_1
-
-epoches = 5  # 训练次数
-batch_size = 1024  # 训练批次(一次训练的数据
-CIFAR100_class = 100  # 数据集的分类类别数量
-learning_rate = 0.002  # 模型学习率
-
 
 
 parser = argparse.ArgumentParser(description="PyTorch ImageNet Training")
@@ -60,7 +50,7 @@ parser.add_argument(
     help="number of data loading workers (default: 4)",
 )
 parser.add_argument(
-    "--epochs", default=10, type=int, metavar="N", help="number of total epochs to run"
+    "--epochs", default=50, type=int, metavar="N", help="number of total epochs to run"
 )
 parser.add_argument(
     "--start-epoch",
@@ -156,7 +146,7 @@ def main():
     print("args", args)
 
     # 日志名称在这里设置：
-    wandb.init(project="Res2Net")
+    wandb.init(project="Res2net")
 
     torch.manual_seed(args.seed)
 
@@ -180,7 +170,6 @@ def main():
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     ])
 
-
     train_set = datasets.CIFAR100('./datasets', train=True,
                                              download=True, transform=transform_train)
     test_set = datasets.CIFAR100('./datasets', train=False,
@@ -191,13 +180,6 @@ def main():
     val_loader = torch.utils.data.DataLoader(test_set, batch_size=args.batch_size,
                                               shuffle=False, num_workers=args.workers)
 
-    train_dataset = torchvision.datasets.CIFAR100(root='./data/CIFAR100', train=True,
-                                                  download=False, transform=transform_train)
-
-    val_dataset = torchvision.datasets.CIFAR100(root='./data/CIFAR100', train=False,
-                                                download=False, transform=transform_val)
-
-
     CIFAR100_class = 100  # 数据集的分类类别数量
 
     # create model
@@ -205,23 +187,14 @@ def main():
     if args.arch == "resnet":
         model = resnet50(num_classes=CIFAR100_class)
     elif args.arch == "res2net":
-        model = res2net50(num_classes=CIFAR100_class)
+        model = res2net50(num_classes=CIFAR100_class, se=True)
+    elif args.arch == "sknet":
+        # model = SKNet5(num_classes=CIFAR100_class)
+        model = sknet50(num_classes=CIFAR100_class)
+    elif args.arch == "gcnet":
+        model = gcnet50(num_classes=CIFAR100_class)
 
 
-
-
-
-def train():
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("using {} device.".format(device))
-
-    # 数据读取
-    train_dataset, val_dataset, train_loader, val_loader = read_data()
-
-    # 模型加载
-    model = res2net50(num_classes=CIFAR100_class)
-    # model = res2net50_1(num_classes=CIFAR100_class)
-    # model = resnet50(num_classes=CIFAR100_class)
 
     model.to(device)
 
