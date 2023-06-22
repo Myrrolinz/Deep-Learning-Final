@@ -16,3 +16,5 @@ data/CIFAR100/cifar-100-python.tar.gz
 *.pyc
 *.gz
 *.zip
+LKACAT/data2/*
+*.pyc

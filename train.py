@@ -22,6 +22,8 @@ from van_res2net import *
 from PIL import ImageFile
 from replknet import *
 from res2net import *
+from LKACAT import *
+from SE_LKACAT import *
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 model_names = sorted(
@@ -172,7 +174,7 @@ def main():
     if args.arch == "resnet":
         model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
     elif args.arch == "VAN":
-        model = van_b1()
+        model = van_b0()
     elif args.arch == "van_multibranch":
         model = van_b1_multibranch()
     elif args.arch == "van_replk":
@@ -183,6 +185,10 @@ def main():
         model = res2net50()
     elif args.arch == "replknet":
         model = create_RepLKNet31B(small_kernel_merged=False)
+    elif args.arch == "LKACAT":
+        model = LKACAT()
+    elif args.arch == "SE_LKACAT":
+        model = SE_LKACAT()
 
     model = model.to(device)
     # define loss function (criterion) and optimizer
