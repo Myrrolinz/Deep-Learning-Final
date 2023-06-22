@@ -4,18 +4,31 @@ import torch.nn as nn
 
 #SE模块
 class SEModule(nn.Module):
-    def __init__(self, channels, reduction=16):
+    def __init__(self, channels, reduction=16, activation='gelu'):
         super(SEModule, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc1 = nn.Conv2d(channels, channels // reduction, kernel_size=1, padding=0)
-        self.relu = nn.ReLU(inplace=True)
+
+        if activation == 'relu':
+            self.activation = nn.ReLU(inplace=True)
+        elif activation == 'celu':
+            self.activation = nn.CELU(inplace=True)
+        elif activation == 'gelu':
+            self.activation = nn.GELU()
+        elif activation == 'elu':
+            self.activation = nn.ELU(inplace=True)
+        elif activation == 'leaky-relu':
+            self.activation = nn.LeakyReLU(inplace=True)
+        else:
+            raise NotImplementedError(f"Activation not implemented!")
+       
         self.fc2 = nn.Conv2d(channels // reduction, channels, kernel_size=1, padding=0)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         x = self.avg_pool(input)
         x = self.fc1(x)
-        x = self.relu(x)
+        x = self.activation(x)
         x = self.fc2(x)
         x = self.sigmoid(x)
         return input * x
@@ -27,7 +40,7 @@ class Bottleneck(nn.Module):
     expansion = 4
 
     # 后续需要为其添加新参数
-    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1, is_first_block=0, se=True):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1, is_first_block=0, se=True, activation='gelu'):
         super(Bottleneck, self).__init__()
 
         self.downsample = downsample
@@ -52,7 +65,19 @@ class Bottleneck(nn.Module):
         self.conv3 = nn.Conv2d(outplanes, planes * self.expansion, kernel_size=1, stride=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * self.expansion)
 
-        self.relu = nn.ReLU(inplace=True)
+        if activation == 'relu':
+            self.activation = nn.ReLU(inplace=True)
+        elif activation == 'celu':
+            self.activation = nn.CELU(inplace=True)
+        elif activation == 'gelu':
+            self.activation = nn.GELU()
+        elif activation == 'elu':
+            self.activation = nn.ELU(inplace=True)
+        elif activation == 'leaky-relu':
+            self.activation = nn.LeakyReLU(inplace=True)
+        else:
+            raise NotImplementedError(f"Activation not implemented!")
+        
         # 处理第一个块
         if is_first_block == 1:
             self.pool = nn.AvgPool2d(kernel_size=3, stride=stride, padding=1)
@@ -70,7 +95,7 @@ class Bottleneck(nn.Module):
         # 1*1卷积层
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.relu(out)
+        out = self.activation(out)
 
         # 3*3卷积结构
         # x_scale = torch.chunk(out, self.scales, 1)  # 将x分割成scales块
@@ -98,7 +123,7 @@ class Bottleneck(nn.Module):
             else:
                 y_scale = y_scale + x_scales[i]
             y_scale = self.conv2[i](y_scale)
-            y_scale = self.relu(self.bn2[i](y_scale))
+            y_scale = self.activation(self.bn2[i](y_scale))
             if i == 0:
                 out = y_scale
             else:
@@ -120,13 +145,13 @@ class Bottleneck(nn.Module):
 
         # 残差连接 out=F(X)+X
         out += identity
-        out = self.relu(out)
+        out = self.activation(out)
 
         return out
 
 
 class Res2Net(nn.Module):
-    def __init__(self, block, layers, num_classes=1000, scales=4, groups=1, se=True):
+    def __init__(self, block, layers, num_classes=1000, scales=4, groups=1, se=True, activation = 'elu'):
         super(Res2Net, self).__init__()
         # 通道数初始化
         self.inplanes = 64
@@ -134,7 +159,19 @@ class Res2Net(nn.Module):
         # 起始：7*7的卷积层，3*3的最大池化层
         self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(self.inplanes)
-        self.relu = nn.ReLU(inplace=True)
+        if activation == 'relu':
+            self.activation = nn.ReLU(inplace=True)
+        elif activation == 'celu':
+            self.activation = nn.CELU(inplace=True)
+        elif activation == 'gelu':
+            self.activation = nn.GELU()
+        elif activation == 'elu':
+            self.activation = nn.ELU(inplace=True)
+        elif activation == 'leaky-relu':
+            self.activation = nn.LeakyReLU(inplace=True)
+        else:
+            raise NotImplementedError(f"Activation not implemented!")
+        
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         # 残差结构
@@ -180,7 +217,7 @@ class Res2Net(nn.Module):
     def forward(self, x):
         x = self.conv1(x)
         x = self.bn1(x)
-        x = self.relu(x)
+        x = self.activation(x)
         x = self.maxpool(x)
 
         x = self.layer1(x)
