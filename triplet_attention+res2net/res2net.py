@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from triplet_attention import *
 
 #SE模块
 class SEModule(nn.Module):
@@ -41,7 +41,7 @@ class Bottleneck(nn.Module):
     expansion = 4
 
     # 后续需要为其添加新参数
-    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1, is_first_block=0, se=True, activation='celu'):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1, is_first_block=0, se=True, activation='relu'):
         super(Bottleneck, self).__init__()
 
         self.downsample = downsample
@@ -118,6 +118,23 @@ class Bottleneck(nn.Module):
 
         # out = torch.cat(y_scale, 1)
 
+        # x_scales = torch.chunk(out, self.scales, 1)
+        # for i in range(self.scales-1):
+        #     if i == 0 or self.is_first_block == 1:
+        #         y_scale = x_scales[i]
+        #     else:
+        #         y_scale = y_scale + x_scales[i]
+        #     y_scale = self.conv2[i](y_scale)
+        #     y_scale = self.activation(self.bn2[i](y_scale))
+        #     if i == 0:
+        #         out = y_scale
+        #     else:
+        #         out = torch.cat((out, y_scale), 1)
+        # if self.scales != 1 and self.is_first_block == 0:
+        #     out = torch.cat((out, x_scales[self.scales-1]), 1)
+        # elif self.scales != 1 and self.is_first_block == 1:
+        #     out = torch.cat((out, self.pool(x_scales[self.scales-1])), 1)
+
         x_scales = torch.chunk(out, self.scales, 1)
         for i in range(self.scales-1):
             if i == 0 or self.is_first_block == 1:
@@ -128,8 +145,11 @@ class Bottleneck(nn.Module):
             y_scale = self.activation(self.bn2[i](y_scale))
             if i == 0:
                 out = y_scale
+                out = self.se(out)
             else:
                 out = torch.cat((out, y_scale), 1)
+                out = self.se(out)
+
         if self.scales != 1 and self.is_first_block == 0:
             out = torch.cat((out, x_scales[self.scales-1]), 1)
         elif self.scales != 1 and self.is_first_block == 1:
@@ -140,8 +160,8 @@ class Bottleneck(nn.Module):
         out = self.bn3(out)
 
         # 是否加入SE模块--该结构利用系数scale来使网络自适应的减弱或增强该通道的特征，与注意力机制有异曲同工之妙。
-        if self.se is not None:
-            out = self.se(out)
+        # if self.se is not None:
+        #     out = self.se(out)
 
         # 添加triplet_attention
 
@@ -153,28 +173,28 @@ class Bottleneck(nn.Module):
 
 
 class Res2Net(nn.Module):
-    def __init__(self, block, layers, num_classes=1000, scales=4, groups=1, se=True, activation = 'celu'):
+    def __init__(self, block, layers, num_classes=1000, scales=4, groups=1, se=True, activation = 'relu'):
         super(Res2Net, self).__init__()
         # 通道数初始化
         self.inplanes = 64
 
         # 起始：7*7的卷积层，3*3的最大池化层
-        # self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
+        self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
         # self.bn1 = nn.BatchNorm2d(self.inplanes)
 
-        self.conv1 = nn.Sequential( nn.Conv2d(3, self.inplanes, kernel_size=3, stride=2, padding=1, bias=False),
-                                    nn.BatchNorm2d(self.inplanes),
-                                    # nn.ReLU(inplace=True),
-                                    nn.CELU(inplace=True),
-                                    nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
-                                    nn.BatchNorm2d(self.inplanes),
-                                    # nn.ReLU(inplace=True),
-                                    nn.CELU(inplace=True),
-                                    nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
-                                    nn.BatchNorm2d(self.inplanes),
-                                    # nn.ReLU(inplace=True)
-                                    nn.CELU(inplace=True),
-                                  )
+        # self.conv1 = nn.Sequential( nn.Conv2d(3, self.inplanes, kernel_size=3, stride=2, padding=1, bias=False),
+        #                             nn.BatchNorm2d(self.inplanes),
+        #                             # nn.ReLU(inplace=True),
+        #                             nn.CELU(inplace=True),
+        #                             nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
+        #                             nn.BatchNorm2d(self.inplanes),
+        #                             # nn.ReLU(inplace=True),
+        #                             nn.CELU(inplace=True),
+        #                             nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
+        #                             nn.BatchNorm2d(self.inplanes),
+        #                             # nn.ReLU(inplace=True)
+        #                             nn.CELU(inplace=True),
+        #                           )
         
         self.bn1 = nn.BatchNorm2d(self.inplanes)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -229,7 +249,7 @@ class Res2Net(nn.Module):
         layers.append(block(self.inplanes, planes, stride=stride, downsample=downsample,
                             scales=scales, groups=groups, is_first_block=1, se=se))
         self.inplanes = planes * block.expansion
-        
+        self.avgpool = nn.AvgPool2d(kernel_size=2,stride=2)
 
         # 通过循环堆叠其余残差块
         for i in range(1, layer):
