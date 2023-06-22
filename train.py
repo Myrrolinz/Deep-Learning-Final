@@ -180,7 +180,7 @@ def main():
     elif args.arch == "van_replk":
         model = van_b0_replk()
     elif args.arch == "van_res2net":
-        model = van_b1_res2net()
+        model = van_b0_res2net()
     elif args.arch == "res2net":
         model = res2net50()
     elif args.arch == "replknet":

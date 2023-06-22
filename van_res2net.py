@@ -92,15 +92,51 @@ class MlpRes2Net(nn.Module):
         x = self.drop(x)
         return x
 
+# class Mlp(nn.Module):
+#     def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
+#         super().__init__()
+#         out_features = out_features or in_features
+#         hidden_features = hidden_features or in_features
+#         self.fc1 = nn.Conv2d(in_features, hidden_features, 1)
+#         self.dwconv = DWConv(hidden_features)
+#         self.act = act_layer()
+#         self.fc2 = nn.Conv2d(hidden_features, out_features, 1)
+#         self.drop = nn.Dropout(drop)
+#         self.apply(self._init_weights)
+
+#     def _init_weights(self, m):
+#         if isinstance(m, nn.Linear):
+#             trunc_normal_(m.weight, std=.02)
+#             if isinstance(m, nn.Linear) and m.bias is not None:
+#                 nn.init.constant_(m.bias, 0)
+#         elif isinstance(m, nn.LayerNorm):
+#             nn.init.constant_(m.bias, 0)
+#             nn.init.constant_(m.weight, 1.0)
+#         elif isinstance(m, nn.Conv2d):
+#             fan_out = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+#             fan_out //= m.groups
+#             m.weight.data.normal_(0, math.sqrt(2.0 / fan_out))
+#             if m.bias is not None:
+#                 m.bias.data.zero_()
+
+#     def forward(self, x):
+#         x = self.fc1(x)
+#         x = self.dwconv(x)
+#         x = self.act(x)
+#         x = self.drop(x)
+#         x = self.fc2(x)
+#         x = self.drop(x)
+#         return x
+
 class Mlp(nn.Module):
-    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
+    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0., scales=4, groups=1):
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
         self.fc1 = nn.Conv2d(in_features, hidden_features, 1)
-        self.dwconv = DWConv(hidden_features)
+        self.bottleneck = Bottleneck(hidden_features, hidden_features, scales=scales, groups=groups)
         self.act = act_layer()
-        self.fc2 = nn.Conv2d(hidden_features, out_features, 1)
+        self.fc2 = nn.Conv2d(hidden_features * 4, out_features, 1)
         self.drop = nn.Dropout(drop)
         self.apply(self._init_weights)
 
@@ -121,13 +157,13 @@ class Mlp(nn.Module):
 
     def forward(self, x):
         x = self.fc1(x)
-        x = self.dwconv(x)
+        x = self.bottleneck(x)
         x = self.act(x)
         x = self.drop(x)
         x = self.fc2(x)
         x = self.drop(x)
         return x
-
+    
 class Bottleneck(nn.Module):
     # 输出通道数为输入通道数的4倍
     expansion = 4
@@ -163,6 +199,15 @@ class Bottleneck(nn.Module):
         # 处理第一个块
         if is_first_block == 1:
             self.pool = nn.AvgPool2d(kernel_size=3, stride=stride, padding=1)
+        
+        if inplanes != planes * 4:
+            self.downsample = nn.Sequential(
+                nn.Conv2d(inplanes, planes * 4, kernel_size=1, stride=1, bias=False),
+                nn.BatchNorm2d(planes * 4),
+            )
+        else:
+            self.downsample = downsample
+            
 
     def forward(self, x):
         identity = x # 将原始输入暂存为shortcut的输出
@@ -316,8 +361,8 @@ class Block(nn.Module):
         self.norm2 = nn.BatchNorm2d(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
         # self.res2net = Res2Net(Bottleneck, [3, 4, 6, 3], num_classes=1000, scales=4, groups=1, out_channels=dim, in_channels=dim)
-        # self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
-        self.mlp = MlpRes2Net(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        # self.mlp = MlpRes2Net(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
         layer_scale_init_value = 1e-2
         self.layer_scale_1 = nn.Parameter(
             layer_scale_init_value * torch.ones((dim)), requires_grad=True)
