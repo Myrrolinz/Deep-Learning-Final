@@ -15,8 +15,13 @@ import torchvision.models as models
 import torchvision.transforms as transforms
 
 from resnet import *
+from van import *
+from van_multibranch import *
+from van_replk import *
+from van_res2net import *
 from PIL import ImageFile
-
+from replknet import *
+from res2net import *
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 model_names = sorted(
@@ -139,7 +144,7 @@ def main():
     print("args", args)
 
     #日志名称在这里设置：
-    wandb.init(project="resnet")
+    wandb.init(project="VAN")
 
     torch.manual_seed(args.seed)
     #torch.cuda.manual_seed_all(args.seed)
@@ -166,6 +171,18 @@ def main():
     #可以选择不同版本的网络
     if args.arch == "resnet":
         model = ResidualNet("CIFAR100", args.depth, 1000, args.att_type)
+    elif args.arch == "VAN":
+        model = van_b1()
+    elif args.arch == "van_multibranch":
+        model = van_b1_multibranch()
+    elif args.arch == "van_replk":
+        model = van_b1_replk()
+    elif args.arch == "van_res2net":
+        model = van_b1_res2net()
+    elif args.arch == "res2net":
+        model = res2net50()
+    elif args.arch == "replknet":
+        model = create_RepLKNet31B(small_kernel_merged=False)
 
     model = model.to(device)
     # define loss function (criterion) and optimizer
@@ -196,6 +213,8 @@ def main():
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
             args.start_epoch = checkpoint["epoch"]
+            # 此处修改epoch
+            args.epoch = args.start_epoch + args.epochs
             best_prec1 = checkpoint["best_prec1"]
             model.load_state_dict(checkpoint["state_dict"])
             if "optimizer" in checkpoint:
@@ -218,7 +237,7 @@ def main():
         validate(val_loader, model, criterion, 0)
         return
 
-
+    
     for epoch in range(args.start_epoch, args.epochs):
         adjust_learning_rate(optimizer, epoch)
 
