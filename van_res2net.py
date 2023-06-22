@@ -11,6 +11,87 @@ import os
 import sys
 import math
 
+class Res2NetBottleneck(nn.Module):
+    expansion = 4
+
+    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1):
+        super(Res2NetBottleneck, self).__init__()
+        self.conv1 = nn.Conv2d(inplanes, planes * scales, kernel_size=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(planes * scales)
+        self.conv2 = nn.ModuleList([
+            nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, groups=groups, bias=False)
+            for _ in range(scales)
+        ])
+        self.bn2 = nn.ModuleList([nn.BatchNorm2d(planes) for _ in range(scales)])
+        self.conv3 = nn.Conv2d(planes * scales, planes * self.expansion, kernel_size=1, bias=False)
+        self.bn3 = nn.BatchNorm2d(planes * self.expansion)
+        self.relu = nn.ReLU(inplace=True)
+        self.downsample = downsample
+        self.stride = stride
+
+    def forward(self, x):
+        identity = x
+
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+
+        splits = torch.chunk(out, len(self.conv2), dim=1)
+        output_splits = []
+        for i, conv in enumerate(self.conv2):
+            if i == 0:
+                output_splits.append(self.relu(self.bn2[i](conv(splits[i]))))
+            else:
+                output_splits.append(self.relu(self.bn2[i](conv(output_splits[-1]))))
+        out = torch.cat(output_splits, dim=1)
+
+        out = self.conv3(out)
+        out = self.bn3(out)
+
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out += identity
+        out = self.relu(out)
+
+        return out
+
+
+class MlpRes2Net(nn.Module):
+    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
+        super(MlpRes2Net, self).__init__()
+        out_features = out_features or in_features
+        hidden_features = hidden_features or in_features
+        self.fc1 = nn.Conv2d(in_features, hidden_features, kernel_size=1)
+        self.res2net = self._make_res2net(hidden_features)
+        self.act = act_layer()
+        self.fc2 = nn.Conv2d(hidden_features, out_features, kernel_size=1)
+        self.drop = nn.Dropout(drop)
+        self.apply(self._init_weights)
+
+    def _init_weights(self, m):
+        if isinstance(m, nn.Conv2d):
+            nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0.0)
+        elif isinstance(m, nn.BatchNorm2d):
+            nn.init.constant_(m.weight, 1.0)
+            nn.init.constant_(m.bias, 0.0)
+
+    def _make_res2net(self, channels):
+        layers = []
+        layers.append(Res2NetBottleneck(channels, channels))
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.res2net(x)
+        x = self.act(x)
+        x = self.drop(x)
+        x = self.fc2(x)
+        x = self.drop(x)
+        return x
+
 class Mlp(nn.Module):
     def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
         super().__init__()
@@ -234,8 +315,9 @@ class Block(nn.Module):
         # self.conv = nn.Conv2d(32, 3, kernel_size=1)
         self.norm2 = nn.BatchNorm2d(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
-        self.res2net = Res2Net(Bottleneck, [3, 4, 6, 3], num_classes=1000, scales=4, groups=1, out_channels=dim, in_channels=dim)
+        # self.res2net = Res2Net(Bottleneck, [3, 4, 6, 3], num_classes=1000, scales=4, groups=1, out_channels=dim, in_channels=dim)
         # self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        self.mlp = MlpRes2Net(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
         layer_scale_init_value = 1e-2
         self.layer_scale_1 = nn.Parameter(
             layer_scale_init_value * torch.ones((dim)), requires_grad=True)
@@ -261,7 +343,7 @@ class Block(nn.Module):
 
     def forward(self, x):
         x = x + self.drop_path(self.layer_scale_1.unsqueeze(-1).unsqueeze(-1) * self.attn(self.norm1(x)))
-        x = x + self.drop_path(self.layer_scale_2.unsqueeze(-1).unsqueeze(-1) * self.res2net(self.norm2(x)))
+        x = x + self.drop_path(self.layer_scale_2.unsqueeze(-1).unsqueeze(-1) * self.mlp(self.norm2(x)))
         return x
 
 
