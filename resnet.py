@@ -39,7 +39,7 @@ class BasicBlock(nn.Module):
         elif att_type=="CA":
             self.attention=CoordAtt(planes,planes,16)
         elif att_type=="TripletLKA":
-            self.attention=TripletLKAAttention(planes*4,16)
+            self.attention=TripletLKAAttention(planes,16)
         else:
             self.attention = None
 
@@ -91,7 +91,9 @@ class Bottleneck(nn.Module):
         elif att_type=="CA":
             self.attention=CoordAtt(planes,planes,16)
         elif att_type=="TripletLKA":
-            self.attention=TripletLKAAttention(planes*4,16)
+            self.attention=TripletLKAAttention(planes,16)
+        elif att_type=="None":
+            self.attention = None
         else:
             self.attention = None
 
