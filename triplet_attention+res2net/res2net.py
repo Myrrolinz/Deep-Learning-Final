@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from triplet_attention import *
+
 
 #SE模块
 class SEModule(nn.Module):
@@ -86,6 +86,8 @@ class Bottleneck(nn.Module):
 
         # SE模块
         self.se = SEModule(planes * self.expansion) if se else None
+        #se111
+        self.semodule = SEModule(outplanes // scales)
 
     def forward(self, x):
         identity = x # 将原始输入暂存为shortcut的输出
@@ -142,14 +144,18 @@ class Bottleneck(nn.Module):
             else:
                 y_scale = y_scale + x_scales[i]
             y_scale = self.conv2[i](y_scale)
+            
+            #se111
+            y_scale = self.semodule(y_scale)
+
             y_scale = self.activation(self.bn2[i](y_scale))
+
+            
+
             if i == 0:
                 out = y_scale
-                out = self.se(out)
             else:
                 out = torch.cat((out, y_scale), 1)
-                out = self.se(out)
-
         if self.scales != 1 and self.is_first_block == 0:
             out = torch.cat((out, x_scales[self.scales-1]), 1)
         elif self.scales != 1 and self.is_first_block == 1:
