@@ -15,7 +15,7 @@ import torchvision.models as models
 import torchvision.transforms as transforms
 from matplotlib import pyplot as plt
 from resnet import *
-from van import *
+#from van import *
 from PIL import ImageFile
 import numpy as np
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -125,7 +125,7 @@ parser.add_argument(
 parser.add_argument("--att-type", type=str, choices=["TripletAttention","VAN","TripletCA","CA","TripletLKA"], default="TripletAttention")
 
 #任务类型，用于统一wandb的数据管理
-parser.add_argument("--task",type=str,choices=["Triplet_activation","Triplet_sigmoid","baseline"])
+parser.add_argument("--task",type=str,choices=["Triplet_activation","Triplet_sigmoid","Triplet_pool","baseline"])
 
 
 #设置activation
@@ -174,15 +174,17 @@ def main():
             m_name="[l2,max]"
         else:
             m_name="[avg, max]"
-    elif args.task=="TripletCA":
-        m_name="TripletCA"
-    elif args.task=="TripletLKA":
-        m_name="TripletLKA"
     elif args.task=="baseline":
-        if args.att_type=="TripletAttention":
-            m_name="Triplet"
-        else:
-            m_name=args.att_type
+        if args.att_type=="TripletCA":
+            m_name = "+TripletCA"
+        elif args.att_type == "TripletLKA":
+            m_name = "+TripletLKA"
+        elif args.att_type=="TripletAttention":
+            m_name="+Triplet"
+        elif args.att_type=="CA":
+            m_name = "+CA"
+        elif args.att_type=="None":
+            m_name="no attention"
     else:
         m_name="fault"
 

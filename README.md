@@ -135,5 +135,7 @@ demo
 * 默认`--task baseline`
 * 调整`-- att-type ()`
 
+## triplet kernel_size:
+triplet.py-SpatialGate中，原始kernel size为7，调整为3、5试试
 
 
