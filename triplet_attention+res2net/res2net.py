@@ -96,6 +96,25 @@ class SEModule(nn.Module):
         x = self.sigmoid(x)
         return input * x
 
+#CA模块
+class ChannelAttention(nn.Module):
+    def __init__(self, in_planes, ratio=16):
+        super(ChannelAttention, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.max_pool = nn.AdaptiveMaxPool2d(1)
+ 
+        self.fc1 = nn.Conv2d(in_planes, in_planes // ratio, 1, bias=False)
+        self.relu1 = nn.ReLU()
+        self.fc2 = nn.Conv2d(in_planes // ratio, in_planes, 1, bias=False)
+ 
+        self.sigmoid = nn.Sigmoid()
+ 
+    def forward(self, x):
+        avg_out = self.fc2(self.relu1(self.fc1(self.avg_pool(x))))
+        max_out = self.fc2(self.relu1(self.fc1(self.max_pool(x))))
+        out = avg_out + max_out
+        return self.sigmoid(out)
+
 
 # 残差层
 class Bottleneck(nn.Module):
@@ -103,7 +122,7 @@ class Bottleneck(nn.Module):
     expansion = 4
 
     # 后续需要为其添加新参数
-    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1, is_first_block=0, se=True, activation='relu'):
+    def __init__(self, inplanes, planes, stride=1, downsample=None, scales=4, groups=1, is_first_block=0, se=True, activation='celu'):
         super(Bottleneck, self).__init__()
 
         self.downsample = downsample
@@ -211,10 +230,9 @@ class Bottleneck(nn.Module):
             y_scale = self.conv2[i](y_scale)
             
             #se111
-            #y_scale = self.semodule(y_scale)
             y_scale = self.activation(self.bn2[i](y_scale))
             # y_scale = self.triplet_attention(y_scale)
-            
+            # y_scale = self.semodule(y_scale)
 
             if i == 0:
                 out = y_scale
@@ -243,28 +261,28 @@ class Bottleneck(nn.Module):
 
 
 class Res2Net(nn.Module):
-    def __init__(self, block, layers, num_classes=1000, scales=4, groups=1, se=True, activation = 'relu'):
+    def __init__(self, block, layers, num_classes=1000, scales=4, groups=1, se=True, activation = 'celu'):
         super(Res2Net, self).__init__()
         # 通道数初始化
         self.inplanes = 64
 
         # 起始：7*7的卷积层，3*3的最大池化层
-        self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
+        #self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3, bias=False)
         # self.bn1 = nn.BatchNorm2d(self.inplanes)
 
-        # self.conv1 = nn.Sequential( nn.Conv2d(3, self.inplanes, kernel_size=3, stride=2, padding=1, bias=False),
-        #                             nn.BatchNorm2d(self.inplanes),
-        #                             # nn.ReLU(inplace=True),
-        #                             nn.CELU(inplace=True),
-        #                             nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
-        #                             nn.BatchNorm2d(self.inplanes),
-        #                             # nn.ReLU(inplace=True),
-        #                             nn.CELU(inplace=True),
-        #                             nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
-        #                             nn.BatchNorm2d(self.inplanes),
-        #                             # nn.ReLU(inplace=True)
-        #                             nn.CELU(inplace=True),
-        #                           )
+        self.conv1 = nn.Sequential( nn.Conv2d(3, self.inplanes, kernel_size=3, stride=2, padding=1, bias=False),
+                                     nn.BatchNorm2d(self.inplanes),
+                                     # nn.ReLU(inplace=True),
+                                     nn.CELU(inplace=True),
+                                     nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
+                                     nn.BatchNorm2d(self.inplanes),
+                                     # nn.ReLU(inplace=True),
+                                     nn.CELU(inplace=True),
+                                     nn.Conv2d(self.inplanes, self.inplanes, kernel_size=3, stride=1, padding=1, bias=False),
+                                     nn.BatchNorm2d(self.inplanes),
+                                     # nn.ReLU(inplace=True)
+                                     nn.CELU(inplace=True),
+                                   )
         
         self.bn1 = nn.BatchNorm2d(self.inplanes)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
