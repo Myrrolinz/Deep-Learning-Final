@@ -178,7 +178,7 @@ def main():
     elif args.arch == "van_multibranch":
         model = van_b0_multibranch()
     elif args.arch == "van_replk":
-        model = van_b0_replk()
+        model = van_b1_replk()
     elif args.arch == "van_res2net":
         model = van_b1_res2net()
     elif args.arch == "res2net":

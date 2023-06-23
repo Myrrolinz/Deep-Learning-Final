@@ -222,7 +222,7 @@ class Attention(nn.Module):
         # self.large_kernel = ReparamLargeKernelConv(in_channels=d_model, out_channels=d_model, kernel_size=31,
         #                                           stride=1, groups=d_model, small_kernel=5, small_kernel_merged=False)
         self.large_kernel = RepLKBlock(in_channels=d_model, dw_channels=d_model, block_lk_size=31,
-                                     small_kernel=5, drop_path=0.3)
+                                     small_kernel=5, drop_path=0.3, small_kernel_merged=True)
         self.proj_2 = nn.Conv2d(d_model, d_model, 1)
 
     def forward(self, x):
@@ -449,4 +449,15 @@ def van_b0_replk(pretrained=False, **kwargs):
     model.default_cfg = _cfg()
     if pretrained:
         model = load_model_weights(model, "van_b0", kwargs)
+    return model
+
+@register_model
+def van_b1_replk(pretrained=False, **kwargs):
+    model = VAN(
+        embed_dims=[64, 128, 320, 512], mlp_ratios=[8, 8, 4, 4],
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[2, 2, 4, 2],
+        **kwargs)
+    model.default_cfg = _cfg()
+    if pretrained:
+        model = load_model_weights(model, "van_b1", kwargs)
     return model
