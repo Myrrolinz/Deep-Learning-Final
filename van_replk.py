@@ -159,6 +159,29 @@ class ReparamLargeKernelConv(nn.Module):
         if hasattr(self, 'small_conv'):
             self.__delattr__('small_conv')
             
+class RepLKBlock(nn.Module):
+
+    def __init__(self, in_channels, dw_channels, block_lk_size, small_kernel, drop_path, small_kernel_merged=False):
+        super().__init__()
+        self.pw1 = conv_bn_relu(in_channels, dw_channels, 1, 1, 0, groups=1)
+        self.pw2 = conv_bn(dw_channels, in_channels, 1, 1, 0, groups=1)
+        self.large_kernel = ReparamLargeKernelConv(in_channels=dw_channels, out_channels=dw_channels, kernel_size=block_lk_size,
+                                                  stride=1, groups=dw_channels, small_kernel=small_kernel, small_kernel_merged=small_kernel_merged)
+        self.lk_nonlinear = nn.ReLU()
+        self.prelkb_bn = get_bn(in_channels)
+        self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
+        print('drop path:', self.drop_path)
+
+    def forward(self, x):
+        out = self.prelkb_bn(x)
+        out = self.pw1(out)
+        out = self.large_kernel(out)
+        out = self.lk_nonlinear(out)
+        out = self.pw2(out)
+        return x + self.drop_path(out)
+
+
+
 # Original LKA
 # class LKA(nn.Module):
 #     def __init__(self, dim):
@@ -196,8 +219,10 @@ class Attention(nn.Module):
         self.proj_1 = nn.Conv2d(d_model, d_model, 1)
         self.activation = nn.GELU()
         # self.spatial_gating_unit = LKA(d_model)
-        self.large_kernel = ReparamLargeKernelConv(in_channels=d_model, out_channels=d_model, kernel_size=31,
-                                                  stride=1, groups=d_model, small_kernel=5, small_kernel_merged=False)
+        # self.large_kernel = ReparamLargeKernelConv(in_channels=d_model, out_channels=d_model, kernel_size=31,
+        #                                           stride=1, groups=d_model, small_kernel=5, small_kernel_merged=False)
+        self.large_kernel = RepLKBlock(in_channels=d_model, dw_channels=d_model, block_lk_size=31,
+                                     small_kernel=5, drop_path=0.3)
         self.proj_2 = nn.Conv2d(d_model, d_model, 1)
 
     def forward(self, x):

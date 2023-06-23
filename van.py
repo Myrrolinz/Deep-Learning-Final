@@ -270,9 +270,9 @@ class LKA(nn.Module):
     def forward(self, x):
         u = x.clone()
         attn = self.conv0(x)
-        attn = F.celu(attn)
+        attn = F.gelu(attn)
         attn = self.conv_spatial(attn)
-        attn = F.celu(attn)
+        attn = F.gelu(attn)
         attn = self.conv1(attn)
 
         return u * attn
