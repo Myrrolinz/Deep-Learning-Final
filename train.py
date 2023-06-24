@@ -24,6 +24,7 @@ from replknet import *
 from res2net import *
 from LKACAT import *
 from SE_LKACAT import *
+from van_super import *
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 model_names = sorted(
@@ -189,6 +190,8 @@ def main():
         model = LKACAT()
     elif args.arch == "SE_LKACAT":
         model = SE_LKACAT()
+    elif args.arch == "van_super":
+        model = van_b0_super()
 
     model = model.to(device)
     # define loss function (criterion) and optimizer
