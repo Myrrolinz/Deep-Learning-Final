@@ -64,9 +64,9 @@ class LKA(nn.Module):
 class MultiScaleBranch(nn.Module):
     def __init__(self, dim):
         super().__init__()
-        self.LKA5 = LKA(dim, kernel_size=5)
-        self.LKA7 = LKA(dim, kernel_size=7)
-        self.LKA9 = LKA(dim, kernel_size=9)
+        self.LKA5 = LKA(dim, kernel_size=7)
+        self.LKA7 = LKA(dim, kernel_size=9)
+        self.LKA9 = LKA(dim, kernel_size=11)
 
     def forward(self, x):
         # u = x.clone()

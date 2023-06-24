@@ -12,7 +12,7 @@ from SE_LKACAT import *
 from van_super import *
 
 # 换自己的模型
-model = van_b0()
+model = van_b1_res2net()
 input = torch.randn(1, 3, 224, 224)
 macs, params = profile(model, inputs=(input, ))
 macs, params = clever_format([macs, params], "%.3f")
