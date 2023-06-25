@@ -1,3 +1,7 @@
 
 general/datasets/*
 data/*
+wandb/*
+datasets/*
+checkpoints/*
+__pycache__/*
